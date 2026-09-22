@@ -4231,9 +4231,14 @@ class App {
                       <span class="mr-2 text-[10px] text-slate-500">(${meal.timestamp})</span>
                     </div>
                   </div>
-                  <button data-delete-id="${meal.id}" aria-label="מחק ארוחה" class="delete-meal-btn text-slate-400 hover:text-red-400 p-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                  </button>
+                  <div class="flex items-center gap-1">
+                    <button data-save-to-catalog-id="${meal.id}" title="שמור מנה זו לקטלוג המנות המותאמות אישית" aria-label="שמור לקטלוג" class="save-meal-to-catalog-btn text-slate-400 hover:text-emerald-400 p-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center">
+                      <i data-lucide="bookmark-plus" class="w-4 h-4"></i>
+                    </button>
+                    <button data-delete-id="${meal.id}" aria-label="מחק ארוחה" class="delete-meal-btn text-slate-400 hover:text-red-400 p-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center">
+                      <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                  </div>
                 </div>
               `).join('')}
             </div>
@@ -4790,6 +4795,31 @@ class App {
           } catch (err) {
             console.error('Failed to delete custom meal from cloud:', err);
             this.showToast('שגיאה במחיקת הארוחה מהקטלוג בענן', 'error');
+          }
+        }
+      });
+    });
+
+    document.querySelectorAll('.save-meal-to-catalog-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.currentTarget.getAttribute('data-save-to-catalog-id');
+        const meals = getMealsForDate(state.activeUser, state.selectedDate);
+        const mealToSave = meals.find(m => m.id === id);
+        if (mealToSave) {
+          try {
+            await addCustomMealToCloud({
+              name: mealToSave.name,
+              recipe: mealToSave.recipe || '',
+              kcal: mealToSave.kcal,
+              protein: mealToSave.protein,
+              carbs: mealToSave.carbs,
+              fat: mealToSave.fat
+            });
+            this.showToast(`המנה "${mealToSave.name}" נשמרה לקטלוג המנות! ✓`, 'success');
+            this.render();
+          } catch (err) {
+            console.error('Failed to save meal to custom catalog:', err);
+            this.showToast('שגיאה בשמירת המנה לקטלוג', 'error');
           }
         }
       });

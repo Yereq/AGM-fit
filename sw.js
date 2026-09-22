@@ -1,19 +1,21 @@
 /**
  * AGM Fit - Production Progressive Web App Service Worker
- * Version: 2.6.1
+ * Version: 2.6.2
  * 
  * Provides offline caching for static app shell assets (HTML, CSS, JS, icons)
  * while strictly bypassing the cache for all Firebase Firestore, Auth, and live API traffic
  * to ensure 100% database integrity and real-time synchronization.
  */
 
-const CACHE_NAME = 'agm-fit-cache-v2.6.1';
+const CACHE_NAME = 'agm-fit-cache-v2.6.2';
 
 // Core static app shell files to pre-cache on install
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/src/icons/icon-192.png',
+  '/src/icons/icon-512.png',
   '/src/styles/main.css',
   '/src/js/app.js',
   '/src/js/config.js',

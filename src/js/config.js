@@ -610,11 +610,37 @@ export const QUICK_PRESETS = [
     image: null,
     badge: '88 גרם',
     toast: 'לחמניית המבורגר (88 גרם) נוספה ליומן! ✓'
+  },
+  {
+    id: 'rice_asado',
+    name: 'אורז עם אסאדו',
+    recipe: 'אורז עם בשר אסאדו עשיר ומזין',
+    kcal: 850,
+    protein: 47,
+    carbs: 50,
+    fat: 50,
+    icon: '🥩',
+    image: null,
+    badge: 'בשרי עשיר',
+    toast: 'אורז עם אסאדו (850 קק״ל) נוסף ליומן! ✓'
+  },
+  {
+    id: 'pasta_rosa',
+    name: 'פסטה רוזה',
+    recipe: 'פסטה ברוטב רוזה עשיר',
+    kcal: 620,
+    protein: 17,
+    carbs: 73,
+    fat: 26,
+    icon: '🍝',
+    image: null,
+    badge: 'איטלקי',
+    toast: 'פסטה רוזה (620 קק״ל) נוספה ליומן! ✓'
   }
 ];
 
 // --- APP VERSION & PRODUCTION CLOUD METADATA ---
 // Increment this semantic version string on EVERY application change/release
-export const APP_VERSION = '2.6.1';
+export const APP_VERSION = '2.6.2';
 export const APP_HOSTING_URL = 'https://agm-fit.web.app';
 
