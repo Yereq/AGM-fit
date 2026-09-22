@@ -13,7 +13,7 @@ export function refreshIcons() {
 }
 
 import { state, AVAILABLE_THEMES, isThemeLight } from './state.js';
-import { PROFILES, QUICK_PRESETS, calculateAutoMacros, isValidImageUrl, getUserProfile } from './config.js';
+import { PROFILES, QUICK_PRESETS, calculateAutoMacros, isValidImageUrl, getUserProfile, APP_VERSION, APP_HOSTING_URL } from './config.js';
 import {
   auth,
   onAuthStateChanged,
@@ -2095,6 +2095,13 @@ class App {
       });
     }
 
+    const drawerWebapp = document.getElementById('drawer-webapp-link');
+    if (drawerWebapp) {
+      drawerWebapp.addEventListener('click', () => {
+        closeDrawer();
+      });
+    }
+
     const drawerLogout = document.getElementById('drawer-logout-btn');
     if (drawerLogout) {
       drawerLogout.addEventListener('click', async () => {
@@ -2124,6 +2131,15 @@ class App {
     const activeBadgeEl = document.getElementById('drawer-active-profile-badge');
     const addUserBtn = document.getElementById('drawer-add-user-btn');
     const manageUsersBtn = document.getElementById('drawer-manage-users-btn');
+    const versionTag = document.getElementById('drawer-version-tag');
+    const versionBadge = document.getElementById('drawer-app-version-badge');
+
+    if (versionTag) {
+      versionTag.textContent = `v${APP_VERSION}`;
+    }
+    if (versionBadge) {
+      versionBadge.textContent = `v${APP_VERSION}`;
+    }
 
     const currentProfile = state.getCurrentProfile();
     if (activeBadgeEl && currentProfile) {
