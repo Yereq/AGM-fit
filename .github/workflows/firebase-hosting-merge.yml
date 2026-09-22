@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - uses: actions/setup-node@v4
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          channelId: live
-          projectId: agm-fit
+          node-version: 20
+      - name: Deploy to Firebase Hosting
+        run: npx firebase-tools deploy --only hosting --project agm-fit
         env:
           FIREBASE_TOKEN: '${{ secrets.FIREBASE_TOKEN }}'
