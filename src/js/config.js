@@ -615,6 +615,6 @@ export const QUICK_PRESETS = [
 
 // --- APP VERSION & PRODUCTION CLOUD METADATA ---
 // Increment this semantic version string on EVERY application change/release
-export const APP_VERSION = '2.6.0';
+export const APP_VERSION = '2.6.1';
 export const APP_HOSTING_URL = 'https://agm-fit.web.app';
 

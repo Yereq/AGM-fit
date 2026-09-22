@@ -1180,24 +1180,17 @@
     <!-- Application Bootstrap Script -->
     <script type="module" src="/src/js/app.js"></script>
     <script>
-      // Cleanly unregister any old/stale Service Workers and caches to guarantee instant fresh loading
+      // Register Production Service Worker
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-          var unregisteredAny = false;
-          for (const registration of registrations) {
-            registration.unregister();
-            unregisteredAny = true;
-          }
-          if (unregisteredAny && !sessionStorage.getItem('ag_sw_cleaned_v2')) {
-            sessionStorage.setItem('ag_sw_cleaned_v2', '1');
-            window.location.reload();
-          }
-        }).catch(() => {});
-      }
-      if ('caches' in window) {
-        caches.keys().then((names) => {
-          for (const name of names) caches.delete(name);
-        }).catch(() => {});
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js', { scope: '/' })
+            .then((registration) => {
+              console.log('[AGM Fit PWA] Service Worker registered with scope:', registration.scope);
+            })
+            .catch((err) => {
+              console.error('[AGM Fit PWA] Service Worker registration failed:', err);
+            });
+        });
       }
     </script>
   </body>

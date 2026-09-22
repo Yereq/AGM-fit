@@ -608,11 +608,11 @@ class App {
   }
 
   getNutritionCardsOrder() {
-    const defaultOrder = ['ready_meals', 'single_items', 'weighed_calculator', 'custom_meal', 'herbalife'];
+    const defaultOrder = ['ready_meals', 'single_items', 'custom_meal', 'herbalife'];
     try {
       const saved = JSON.parse(localStorage.getItem('nutrition_cards_order') || 'null');
       if (Array.isArray(saved) && saved.length > 0) {
-        const valid = ['ready_meals', 'single_items', 'weighed_calculator', 'custom_meal', 'herbalife'];
+        const valid = ['ready_meals', 'single_items', 'custom_meal', 'herbalife'];
         const filtered = saved.filter(id => valid.includes(id));
         valid.forEach(id => {
           if (!filtered.includes(id)) filtered.push(id);
@@ -3470,10 +3470,10 @@ class App {
   }
 
   renderCardWeighedCalculator(isFirst, isLast) {
-    const presets = WEIGHED_FOOD_PRESETS;
-    const currentPresetId = this.weighedCalculator?.presetId || 'hamburger_bun';
-    const currentPreset = presets.find(p => p.id === currentPresetId) || presets[0];
-    const currentGrams = Number(this.weighedCalculator?.grams) || currentPreset.defaultGrams || 88;
+    return '';
+  }
+
+  _unused_renderCardWeighedCalculator(isFirst, isLast) {
 
     let calcKcal = 0;
     let calcProtein = 0;
@@ -4154,8 +4154,6 @@ class App {
           return this.renderCardReadyMeals(isFirst, isLast);
         case 'single_items':
           return this.renderCardSingleItems(isFirst, isLast);
-        case 'weighed_calculator':
-          return this.renderCardWeighedCalculator(isFirst, isLast);
         case 'custom_meal':
           return this.renderCardCustomMeal(isFirst, isLast);
         case 'herbalife':
@@ -4281,7 +4279,7 @@ class App {
     const resetBtn = document.getElementById('btn-reset-nutrition-order');
     if (resetBtn) {
       resetBtn.addEventListener('click', () => {
-        const defaultOrder = ['ready_meals', 'single_items', 'weighed_calculator', 'custom_meal', 'herbalife'];
+        const defaultOrder = ['ready_meals', 'single_items', 'custom_meal', 'herbalife'];
         this.setNutritionCardsOrder(defaultOrder);
         try {
           if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -4519,12 +4517,8 @@ class App {
     // Bind Accordions Persistence for all standalone cards
     this.bindAccordion('meals-ready-meals-acc', 'meals_ready_meals');
     this.bindAccordion('meals-single-items-acc', 'meals_single_items');
-    this.bindAccordion('meals-weighed-calc-acc', 'meals_weighed_calc');
     this.bindAccordion('meals-custom-acc', 'meals_custom');
     this.bindAccordion('meals-herbalife-acc', 'meals_herbalife');
-
-    // Bind Weighed Calculator Events
-    this.bindWeighedCalculatorEvents();
 
     // Bind reordering (drag handles, buttons, touch)
     this.bindNutritionCardReordering();
@@ -4812,7 +4806,10 @@ class App {
   }
 
   bindWeighedCalculatorEvents() {
-    // 1. Spotlight Fast Log for 88g Hamburger Bun
+    return;
+  }
+
+  _unused_bindWeighedCalculatorEvents() {
     const fastBunBtn = document.getElementById('btn-fast-log-bun-88g');
     if (fastBunBtn) {
       fastBunBtn.addEventListener('click', () => {
