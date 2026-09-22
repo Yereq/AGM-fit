@@ -53,7 +53,11 @@ import {
   SINGLE_ITEM_BUILDING_BLOCKS,
   logSingleItemBuildingBlock,
   HERBALIFE_PRODUCTS,
-  logHerbalifeProduct
+  logHerbalifeProduct,
+  WEIGHED_FOOD_PRESETS,
+  calculateWeighedMacros,
+  logWeighedFoodItem,
+  logHamburgerBun
 } from './meals.js';
 import {
   getTanitaHistory,
@@ -89,6 +93,7 @@ class App {
       liquidId: 'water'
     };
     this.singleItemCounts = {
+      hamburger_bun_88g: 1,
       olive_oil_tsp: 1,
       bread_slice_40g: 1,
       pita_angel_118g: 1,
@@ -99,6 +104,15 @@ class App {
       cottage_5_tub: 1,
       cottage_9_tbsp: 1,
       cottage_9_tub: 1
+    };
+    this.weighedCalculator = {
+      presetId: 'hamburger_bun',
+      grams: 88,
+      customKcal100: 200,
+      customProtein100: 10,
+      customCarbs100: 20,
+      customFat100: 5,
+      customName: ''
     };
     this.smartPasteDraft = null;
     this.toastTimer = null;
@@ -594,11 +608,11 @@ class App {
   }
 
   getNutritionCardsOrder() {
-    const defaultOrder = ['ready_meals', 'single_items', 'custom_meal', 'herbalife'];
+    const defaultOrder = ['ready_meals', 'single_items', 'weighed_calculator', 'custom_meal', 'herbalife'];
     try {
       const saved = JSON.parse(localStorage.getItem('nutrition_cards_order') || 'null');
       if (Array.isArray(saved) && saved.length > 0) {
-        const valid = ['ready_meals', 'single_items', 'custom_meal', 'herbalife'];
+        const valid = ['ready_meals', 'single_items', 'weighed_calculator', 'custom_meal', 'herbalife'];
         const filtered = saved.filter(id => valid.includes(id));
         valid.forEach(id => {
           if (!filtered.includes(id)) filtered.push(id);
@@ -3455,6 +3469,272 @@ class App {
     `;
   }
 
+  renderCardWeighedCalculator(isFirst, isLast) {
+    const presets = WEIGHED_FOOD_PRESETS;
+    const currentPresetId = this.weighedCalculator?.presetId || 'hamburger_bun';
+    const currentPreset = presets.find(p => p.id === currentPresetId) || presets[0];
+    const currentGrams = Number(this.weighedCalculator?.grams) || currentPreset.defaultGrams || 88;
+
+    let calcKcal = 0;
+    let calcProtein = 0;
+    let calcCarbs = 0;
+    let calcFat = 0;
+
+    if (currentPreset.id === 'custom_weighed') {
+      const k100 = Number(this.weighedCalculator?.customKcal100) || 0;
+      const p100 = Number(this.weighedCalculator?.customProtein100) || 0;
+      const c100 = Number(this.weighedCalculator?.customCarbs100) || 0;
+      const f100 = Number(this.weighedCalculator?.customFat100) || 0;
+      const ratio = currentGrams / 100;
+      calcKcal = Math.round(k100 * ratio);
+      calcProtein = Number((p100 * ratio).toFixed(1));
+      calcCarbs = Number((c100 * ratio).toFixed(1));
+      calcFat = Number((f100 * ratio).toFixed(1));
+    } else {
+      const res = calculateWeighedMacros(currentPreset, currentGrams);
+      calcKcal = res.kcal;
+      calcProtein = res.protein;
+      calcCarbs = res.carbs;
+      calcFat = res.fat;
+    }
+
+    return `
+      <details id="meals-weighed-calc-acc" data-card-id="weighed_calculator" class="reorderable-card accordion-card dashboard-card group border-amber-500/25 bg-gradient-to-b from-slate-900/90 via-slate-900/60 to-slate-950/80" ${this.isAccordionOpen('meals_weighed_calc', true) ? 'open' : ''}>
+        <summary class="cursor-pointer list-none flex items-center justify-between select-none pb-2 border-b border-slate-800/80 w-full overflow-hidden">
+          <div class="flex items-center gap-2.5 min-w-0 flex-1">
+            <div class="card-reorder-vertical-group" onclick="event.stopPropagation()">
+              <button type="button" data-move-card-up="weighed_calculator" class="card-reorder-btn" title="הזז למעלה" ${isFirst ? 'disabled' : ''} aria-label="הזז למעלה">
+                <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i>
+              </button>
+              <div class="card-drag-handle" title="גרור לשינוי סדר כרטיסים" draggable="true" aria-label="ידית גרירה לשינוי סדר">
+                <i data-lucide="grip-vertical" class="w-3.5 h-3.5"></i>
+              </div>
+              <button type="button" data-move-card-down="weighed_calculator" class="card-reorder-btn" title="הזז למטה" ${isLast ? 'disabled' : ''} aria-label="הזז למטה">
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+              <i data-lucide="scale" class="w-4 h-4"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h3 class="text-sm font-black text-slate-100 truncate">מחשבון שקילת מזון וגרמים (Weighed Food)</h3>
+                <span class="card-count-badge shrink-0 bg-amber-500/15 text-amber-300 border border-amber-500/30">כיול משקל מטבח ⚖️</span>
+              </div>
+              <p class="text-[11px] text-slate-400 truncate">חישוב מדויק לפי שקילה במאזניים (כולל לחמניית המבורגר 88 גרם)</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0 pr-2">
+            <div class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700/70 text-xs font-bold text-slate-300 hover:text-amber-300 flex items-center gap-1.5 transition-all shadow-sm shrink-0 min-h-[36px] whitespace-nowrap">
+              <span class="hidden xs:inline sm:inline">כיווץ / הרחבה</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-amber-400 transition-transform duration-200 accordion-chevron"></i>
+            </div>
+          </div>
+        </summary>
+
+        <div class="pt-3.5 space-y-4">
+          <!-- Spotlight Fast Action for 88g Hamburger Bun -->
+          <div class="p-3 rounded-xl bg-gradient-to-r from-amber-500/15 via-slate-900 to-slate-950 border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+              <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                🍔
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-extrabold text-sm text-slate-100">לחמניית המבורגר (עם שומשום)</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">שקול: 88 גרם</span>
+                </div>
+                <div class="text-[11px] text-slate-300 flex items-center gap-2 mt-0.5 flex-wrap">
+                  <span class="text-amber-300 font-bold">260 קק״ל</span>
+                  <span class="text-slate-500">•</span>
+                  <span class="text-emerald-300 font-semibold">חלבון: 7.5g</span>
+                  <span class="text-slate-500">•</span>
+                  <span class="text-blue-300">פחמימות: 46g</span>
+                  <span class="text-slate-500">•</span>
+                  <span class="text-purple-300">שומן: 3.5g</span>
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              id="btn-fast-log-bun-88g"
+              class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-950/40 cursor-pointer active:scale-95 transition-all shrink-0 min-h-[44px]"
+            >
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              <span>רשום מיד ליומן (88g)</span>
+            </button>
+          </div>
+
+          <!-- Interactive Calculator Body -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5 sm:p-4">
+            <!-- Left / Preset Selector & Weight Input -->
+            <div class="lg:col-span-7 space-y-3.5">
+              <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5 text-amber-400"></i>
+                  <span>בחר פריט שקול מהרשימה:</span>
+                </label>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  ${presets.map(p => `
+                    <button
+                      type="button"
+                      data-weighed-select="${p.id}"
+                      class="weighed-preset-select-btn text-right p-2.5 rounded-xl border transition-all flex items-center gap-2 cursor-pointer ${p.id === currentPresetId ? 'bg-amber-500/20 border-amber-500/60 text-slate-100 shadow-sm' : 'bg-slate-900/80 border-slate-800 hover:border-slate-700 text-slate-300'}"
+                    >
+                      <span class="text-xl shrink-0 select-none">${p.icon}</span>
+                      <div class="min-w-0 flex-1">
+                        <div class="text-[11px] font-bold truncate leading-tight">${p.name}</div>
+                        <div class="text-[9.5px] text-slate-400 truncate">${p.defaultGrams} גרם</div>
+                      </div>
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
+
+              ${currentPreset.id === 'custom_weighed' ? `
+                <!-- Custom item inputs -->
+                <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2.5">
+                  <div class="text-xs font-bold text-slate-200">ערכים תזונתיים ל-100 גרם:</div>
+                  <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    <div class="sm:col-span-2">
+                      <label class="block text-[10px] text-slate-400 mb-1">שם הפריט</label>
+                      <input type="text" id="weighed-custom-name" value="${this.weighedCalculator?.customName || ''}" placeholder="למשל: בטטה אפויה" class="input-field text-xs py-1.5 px-2" />
+                    </div>
+                    <div>
+                      <label class="block text-[10px] text-slate-400 mb-1">קק״ל (100g)</label>
+                      <input type="number" id="weighed-custom-kcal" value="${this.weighedCalculator?.customKcal100 || 200}" class="input-field text-xs py-1.5 px-2" />
+                    </div>
+                    <div>
+                      <label class="block text-[10px] text-slate-400 mb-1">חלבון (100g)</label>
+                      <input type="number" step="0.1" id="weighed-custom-protein" value="${this.weighedCalculator?.customProtein100 || 10}" class="input-field text-xs py-1.5 px-2" />
+                    </div>
+                    <div>
+                      <label class="block text-[10px] text-slate-400 mb-1">פחמימה (100g)</label>
+                      <input type="number" step="0.1" id="weighed-custom-carbs" value="${this.weighedCalculator?.customCarbs100 || 20}" class="input-field text-xs py-1.5 px-2" />
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Grams Input & Quick Adjusters -->
+              <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                    <i data-lucide="scale" class="w-3.5 h-3.5 text-amber-400"></i>
+                    <span>משקל מהמאזניים (בגרמים):</span>
+                  </label>
+                  <span class="text-[11px] font-mono font-bold text-amber-400">${currentGrams} גרם</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="relative flex-1">
+                    <input
+                      type="number"
+                      id="weighed-grams-input"
+                      value="${currentGrams}"
+                      min="1"
+                      max="2000"
+                      class="input-field text-base font-black text-center py-2 px-3 text-amber-300 font-mono"
+                    />
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium">גרם</span>
+                  </div>
+                  <!-- Quick Steppers -->
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" data-weighed-step="-10" class="weighed-step-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono font-bold cursor-pointer" title="פחות 10 גרם">-10</button>
+                    <button type="button" data-weighed-step="-1" class="weighed-step-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono font-bold cursor-pointer" title="פחות 1 גרם">-1</button>
+                    <button type="button" data-weighed-step="+1" class="weighed-step-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono font-bold cursor-pointer" title="עוד 1 גרם">+1</button>
+                    <button type="button" data-weighed-step="+10" class="weighed-step-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono font-bold cursor-pointer" title="עוד 10 גרם">+10</button>
+                  </div>
+                </div>
+
+                <!-- Quick Gram Presets -->
+                <div class="flex items-center gap-1.5 flex-wrap pt-1">
+                  <span class="text-[10px] text-slate-400">קיצורים:</span>
+                  ${currentPreset.id === 'hamburger_bun' ? `
+                    <button type="button" data-weighed-set-grams="88" class="weighed-set-btn text-[10px] px-2 py-1 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold hover:bg-amber-500 hover:text-slate-950 transition-colors">88g (לחמנייה שלמה)</button>
+                    <button type="button" data-weighed-set-grams="44" class="weighed-set-btn text-[10px] px-2 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 font-medium">44g (חצי לחמנייה)</button>
+                    <button type="button" data-weighed-set-grams="132" class="weighed-set-btn text-[10px] px-2 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 font-medium">132g (1.5 לחמניות)</button>
+                  ` : ''}
+                  <button type="button" data-weighed-set-grams="50" class="weighed-set-btn text-[10px] px-2 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 font-medium">50g</button>
+                  <button type="button" data-weighed-set-grams="100" class="weighed-set-btn text-[10px] px-2 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 font-medium">100g</button>
+                  <button type="button" data-weighed-set-grams="150" class="weighed-set-btn text-[10px] px-2 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 font-medium">150g</button>
+                  <button type="button" data-weighed-set-grams="200" class="weighed-set-btn text-[10px] px-2 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 font-medium">200g</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right / Live Macro Display & Log Button -->
+            <div class="lg:col-span-5 flex flex-col justify-between gap-3 p-3.5 rounded-xl bg-slate-900/90 border border-slate-800">
+              <div class="space-y-2.5">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="text-2xl">${currentPreset.icon}</span>
+                    <div>
+                      <div class="text-xs font-bold text-slate-100" id="weighed-live-title">
+                        ${currentPreset.id === 'custom_weighed' ? (this.weighedCalculator?.customName || 'פריט שקול מותאם') : currentPreset.name}
+                      </div>
+                      <div class="text-[10px] text-slate-400" id="weighed-live-subtitle">שקילה נוכחית: ${currentGrams} גרם</div>
+                    </div>
+                  </div>
+                  <span class="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold font-mono">
+                    <span id="weighed-live-kcal">${calcKcal}</span> קק״ל
+                  </span>
+                </div>
+
+                <!-- Macro Grid -->
+                <div class="grid grid-cols-3 gap-2 text-center">
+                  <div class="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80">
+                    <div class="text-[10px] text-emerald-400 font-semibold mb-0.5">חלבון</div>
+                    <div class="text-sm font-black text-slate-100 font-mono"><span id="weighed-live-protein">${calcProtein}</span>g</div>
+                  </div>
+                  <div class="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80">
+                    <div class="text-[10px] text-blue-400 font-semibold mb-0.5">פחמימות</div>
+                    <div class="text-sm font-black text-slate-100 font-mono"><span id="weighed-live-carbs">${calcCarbs}</span>g</div>
+                  </div>
+                  <div class="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80">
+                    <div class="text-[10px] text-purple-400 font-semibold mb-0.5">שומן</div>
+                    <div class="text-sm font-black text-slate-100 font-mono"><span id="weighed-live-fat">${calcFat}</span>g</div>
+                  </div>
+                </div>
+
+                <div class="text-[10.5px] text-slate-400 bg-slate-950/50 p-2 rounded-lg border border-slate-800/50">
+                  <div class="flex items-center gap-1.5 text-slate-300 font-medium mb-0.5">
+                    <i data-lucide="info" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i>
+                    <span>פירוט שקילה:</span>
+                  </div>
+                  <span id="weighed-live-desc" class="leading-relaxed">
+                    ${currentPreset.description || `חישוב עבור ${currentGrams} גרם`}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Log Action Button -->
+              <button
+                type="button"
+                id="btn-log-weighed-item"
+                class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 cursor-pointer active:scale-95 transition-all min-h-[46px]"
+              >
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>רשום פריט שקול זה ליומן הארוחות ✓</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom Collapse Button -->
+          <div class="pt-2 border-t border-slate-800/80 flex justify-center">
+            <button
+              type="button"
+              data-collapse-card="meals-weighed-calc-acc"
+              class="px-5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700/70 text-xs font-bold text-slate-300 hover:text-amber-300 flex items-center gap-2 transition-all cursor-pointer shadow-sm min-h-[38px] active:scale-95"
+            >
+              <i data-lucide="chevron-up" class="w-4 h-4 text-amber-400"></i>
+              <span>כווץ מחשבון שקילת מזון ▲</span>
+            </button>
+          </div>
+        </div>
+      </details>
+    `;
+  }
+
   renderCardCustomMeal(isFirst, isLast) {
     const sharedMeals = state.customMeals || [];
 
@@ -3874,6 +4154,8 @@ class App {
           return this.renderCardReadyMeals(isFirst, isLast);
         case 'single_items':
           return this.renderCardSingleItems(isFirst, isLast);
+        case 'weighed_calculator':
+          return this.renderCardWeighedCalculator(isFirst, isLast);
         case 'custom_meal':
           return this.renderCardCustomMeal(isFirst, isLast);
         case 'herbalife':
@@ -3999,7 +4281,7 @@ class App {
     const resetBtn = document.getElementById('btn-reset-nutrition-order');
     if (resetBtn) {
       resetBtn.addEventListener('click', () => {
-        const defaultOrder = ['ready_meals', 'single_items', 'custom_meal', 'herbalife'];
+        const defaultOrder = ['ready_meals', 'single_items', 'weighed_calculator', 'custom_meal', 'herbalife'];
         this.setNutritionCardsOrder(defaultOrder);
         try {
           if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -4234,11 +4516,15 @@ class App {
       });
     }
 
-    // Bind Accordions Persistence for all 4 standalone cards
+    // Bind Accordions Persistence for all standalone cards
     this.bindAccordion('meals-ready-meals-acc', 'meals_ready_meals');
     this.bindAccordion('meals-single-items-acc', 'meals_single_items');
+    this.bindAccordion('meals-weighed-calc-acc', 'meals_weighed_calc');
     this.bindAccordion('meals-custom-acc', 'meals_custom');
     this.bindAccordion('meals-herbalife-acc', 'meals_herbalife');
+
+    // Bind Weighed Calculator Events
+    this.bindWeighedCalculatorEvents();
 
     // Bind reordering (drag handles, buttons, touch)
     this.bindNutritionCardReordering();
@@ -4523,6 +4809,207 @@ class App {
         this.render();
       });
     });
+  }
+
+  bindWeighedCalculatorEvents() {
+    // 1. Spotlight Fast Log for 88g Hamburger Bun
+    const fastBunBtn = document.getElementById('btn-fast-log-bun-88g');
+    if (fastBunBtn) {
+      fastBunBtn.addEventListener('click', () => {
+        logWeighedFoodItem({
+          name: 'לחמניית המבורגר (עם שומשום)',
+          grams: 88,
+          kcal: 260,
+          protein: 7.5,
+          carbs: 46.0,
+          fat: 3.5,
+          recipe: 'לחמניית המבורגר עם שומשום שנשקלה במאזניים (88 גרם)'
+        }, state.activeUser, state.selectedDate);
+        this.showToast('לחמניית המבורגר (88 גרם) נוספה ליומן! ✓');
+        this.render();
+      });
+    }
+
+    // Helper to calculate and refresh live values in DOM without re-rendering the whole page
+    const updateLiveCalc = () => {
+      const presets = WEIGHED_FOOD_PRESETS;
+      const currentPresetId = this.weighedCalculator?.presetId || 'hamburger_bun';
+      const currentPreset = presets.find(p => p.id === currentPresetId) || presets[0];
+      const gramsInput = document.getElementById('weighed-grams-input');
+      const g = Math.max(1, gramsInput ? (parseFloat(gramsInput.value) || 1) : (this.weighedCalculator?.grams || 88));
+      if (this.weighedCalculator) {
+        this.weighedCalculator.grams = g;
+      }
+
+      let calcKcal = 0;
+      let calcProtein = 0;
+      let calcCarbs = 0;
+      let calcFat = 0;
+      let displayName = currentPreset.name;
+
+      if (currentPreset.id === 'custom_weighed') {
+        const nameInput = document.getElementById('weighed-custom-name');
+        const kInput = document.getElementById('weighed-custom-kcal');
+        const pInput = document.getElementById('weighed-custom-protein');
+        const cInput = document.getElementById('weighed-custom-carbs');
+        const customName = nameInput ? nameInput.value.trim() : (this.weighedCalculator?.customName || '');
+        const k100 = kInput ? (parseFloat(kInput.value) || 0) : (this.weighedCalculator?.customKcal100 || 200);
+        const p100 = pInput ? (parseFloat(pInput.value) || 0) : (this.weighedCalculator?.customProtein100 || 10);
+        const c100 = cInput ? (parseFloat(cInput.value) || 0) : (this.weighedCalculator?.customCarbs100 || 20);
+        const ratio = g / 100;
+        calcKcal = Math.round(k100 * ratio);
+        calcProtein = Number((p100 * ratio).toFixed(1));
+        calcCarbs = Number((c100 * ratio).toFixed(1));
+        calcFat = Number(((this.weighedCalculator?.customFat100 || 5) * ratio).toFixed(1));
+        if (customName) displayName = customName;
+        if (this.weighedCalculator) {
+          this.weighedCalculator.customName = customName;
+          this.weighedCalculator.customKcal100 = k100;
+          this.weighedCalculator.customProtein100 = p100;
+          this.weighedCalculator.customCarbs100 = c100;
+        }
+      } else {
+        const res = calculateWeighedMacros(currentPreset, g);
+        calcKcal = res.kcal;
+        calcProtein = res.protein;
+        calcCarbs = res.carbs;
+        calcFat = res.fat;
+      }
+
+      const kcalEl = document.getElementById('weighed-live-kcal');
+      const protEl = document.getElementById('weighed-live-protein');
+      const carbsEl = document.getElementById('weighed-live-carbs');
+      const fatEl = document.getElementById('weighed-live-fat');
+      const titleEl = document.getElementById('weighed-live-title');
+      const subEl = document.getElementById('weighed-live-subtitle');
+      const descEl = document.getElementById('weighed-live-desc');
+
+      if (kcalEl) kcalEl.textContent = calcKcal;
+      if (protEl) protEl.textContent = calcProtein;
+      if (carbsEl) carbsEl.textContent = calcCarbs;
+      if (fatEl) fatEl.textContent = calcFat;
+      if (titleEl) titleEl.textContent = displayName;
+      if (subEl) subEl.textContent = `שקילה נוכחית: ${g} גרם`;
+      if (descEl) {
+        descEl.textContent = currentPreset.id === 'hamburger_bun'
+          ? `לחמניית המבורגר עם שומשום (${g} גרם = ${calcKcal} קק״ל, ${calcProtein}g חלבון, ${calcCarbs}g פחמימות, ${calcFat}g שומן)`
+          : `ערכים מדויקים עבור ${g} גרם (${calcKcal} קק״ל)`;
+      }
+    };
+
+    // 2. Preset Select Buttons
+    document.querySelectorAll('[data-weighed-select]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const presetId = e.currentTarget.getAttribute('data-weighed-select');
+        const preset = WEIGHED_FOOD_PRESETS.find(p => p.id === presetId);
+        if (!preset) return;
+        if (!this.weighedCalculator) {
+          this.weighedCalculator = {};
+        }
+        this.weighedCalculator.presetId = presetId;
+        this.weighedCalculator.grams = preset.defaultGrams;
+
+        // Re-render to update inputs/active states
+        this.render();
+      });
+    });
+
+    // 3. Grams Input Listener
+    const gramsInput = document.getElementById('weighed-grams-input');
+    if (gramsInput) {
+      gramsInput.addEventListener('input', () => {
+        updateLiveCalc();
+      });
+    }
+
+    // 4. Custom Inputs Listeners
+    ['weighed-custom-name', 'weighed-custom-kcal', 'weighed-custom-protein', 'weighed-custom-carbs'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          updateLiveCalc();
+        });
+      }
+    });
+
+    // 5. Stepper Buttons (-10, -1, +1, +10)
+    document.querySelectorAll('.weighed-step-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const stepVal = parseInt(e.currentTarget.getAttribute('data-weighed-step'), 10) || 0;
+        const input = document.getElementById('weighed-grams-input');
+        if (input) {
+          const current = parseFloat(input.value) || 0;
+          const next = Math.max(1, Math.round(current + stepVal));
+          input.value = next;
+          updateLiveCalc();
+        }
+      });
+    });
+
+    // 6. Set Grams Preset Buttons (e.g. 88g, 44g, 100g, etc.)
+    document.querySelectorAll('.weighed-set-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const val = parseInt(e.currentTarget.getAttribute('data-weighed-set-grams'), 10) || 88;
+        const input = document.getElementById('weighed-grams-input');
+        if (input) {
+          input.value = val;
+          updateLiveCalc();
+        }
+      });
+    });
+
+    // 7. Log Weighed Item Button
+    const logBtn = document.getElementById('btn-log-weighed-item');
+    if (logBtn) {
+      logBtn.addEventListener('click', () => {
+        const presets = WEIGHED_FOOD_PRESETS;
+        const currentPresetId = this.weighedCalculator?.presetId || 'hamburger_bun';
+        const currentPreset = presets.find(p => p.id === currentPresetId) || presets[0];
+        const gramsInput = document.getElementById('weighed-grams-input');
+        const g = Math.max(1, gramsInput ? (parseFloat(gramsInput.value) || 1) : (this.weighedCalculator?.grams || 88));
+
+        let mealName = currentPreset.name;
+        let calcKcal = 0;
+        let calcProtein = 0;
+        let calcCarbs = 0;
+        let calcFat = 0;
+
+        if (currentPreset.id === 'custom_weighed') {
+          const nameInput = document.getElementById('weighed-custom-name');
+          const kInput = document.getElementById('weighed-custom-kcal');
+          const pInput = document.getElementById('weighed-custom-protein');
+          const cInput = document.getElementById('weighed-custom-carbs');
+          const customName = nameInput ? nameInput.value.trim() : (this.weighedCalculator?.customName || '');
+          const k100 = kInput ? (parseFloat(kInput.value) || 0) : (this.weighedCalculator?.customKcal100 || 200);
+          const p100 = pInput ? (parseFloat(pInput.value) || 0) : (this.weighedCalculator?.customProtein100 || 10);
+          const c100 = cInput ? (parseFloat(cInput.value) || 0) : (this.weighedCalculator?.customCarbs100 || 20);
+          const ratio = g / 100;
+          calcKcal = Math.round(k100 * ratio);
+          calcProtein = Number((p100 * ratio).toFixed(1));
+          calcCarbs = Number((c100 * ratio).toFixed(1));
+          calcFat = Number(((this.weighedCalculator?.customFat100 || 5) * ratio).toFixed(1));
+          if (customName) mealName = customName;
+        } else {
+          const res = calculateWeighedMacros(currentPreset, g);
+          calcKcal = res.kcal;
+          calcProtein = res.protein;
+          calcCarbs = res.carbs;
+          calcFat = res.fat;
+        }
+
+        logWeighedFoodItem({
+          name: mealName,
+          grams: g,
+          kcal: calcKcal,
+          protein: calcProtein,
+          carbs: calcCarbs,
+          fat: calcFat
+        }, state.activeUser, state.selectedDate);
+
+        this.showToast(`נרשם ליומן: ${mealName} (${g} גרם, ${calcKcal} קק״ל) ✓`);
+        this.render();
+      });
+    }
   }
 
   // --- COMBINED MULTI-METRIC TANITA CHART (COLLAPSIBLE CARD) ---

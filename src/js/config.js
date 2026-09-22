@@ -597,11 +597,24 @@ export const QUICK_PRESETS = [
     icon: '🫐',
     image: null,
     badge: 'מרענן'
+  },
+  {
+    id: 'hamburger_bun_88g',
+    name: 'לחמניית המבורגר (עם שומשום)',
+    recipe: 'לחמניית המבורגר עם שומשום שנשקלה במשקל מדויק (88 גרם)',
+    kcal: 260,
+    protein: 7.5,
+    carbs: 46.0,
+    fat: 3.5,
+    icon: '🍔',
+    image: null,
+    badge: '88 גרם',
+    toast: 'לחמניית המבורגר (88 גרם) נוספה ליומן! ✓'
   }
 ];
 
 // --- APP VERSION & PRODUCTION CLOUD METADATA ---
 // Increment this semantic version string on EVERY application change/release
-export const APP_VERSION = '2.5.0';
+export const APP_VERSION = '2.6.0';
 export const APP_HOSTING_URL = 'https://agm-fit.web.app';
 

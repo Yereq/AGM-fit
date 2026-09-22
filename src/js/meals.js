@@ -327,6 +327,22 @@ export function renderFoodThumbnailHtml(item, fallbackIcon = '🍽️') {
 // Single-Item Building Blocks with Calibrated Base Values
 export const SINGLE_ITEM_BUILDING_BLOCKS = [
   {
+    id: 'hamburger_bun_88g',
+    name: 'לחמניית המבורגר (עם שומשום)',
+    unitName: 'לחמנייה',
+    unitNamePlural: 'לחמניות',
+    baseAmount: 1,
+    baseWeightGrams: 88,
+    kcal: 260,
+    protein: 7.5,
+    carbs: 46.0,
+    fat: 3.5,
+    icon: '🍔',
+    image: null,
+    badge: 'שקילה: 88 גרם',
+    toast: 'לחמניית המבורגר (88 גרם) נוספה ליומן! ✓'
+  },
+  {
     id: 'olive_oil_tsp',
     name: 'כפית שמן זית (5 מ״ל)',
     unitName: 'כפית',
@@ -559,6 +575,156 @@ export function logHerbalifeProduct(productId, user = 'Arik', dateStr = null) {
     timestamp: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })
   };
   return saveMeal(user, targetDate, meal);
+}
+
+// Weighed Food Presets (Calibrated for digital kitchen scales and per-100g calculations)
+export const WEIGHED_FOOD_PRESETS = [
+  {
+    id: 'hamburger_bun',
+    name: 'לחמניית המבורגר (עם שומשום)',
+    icon: '🍔',
+    badge: 'משקל יעד: 88 גרם',
+    defaultGrams: 88,
+    kcalPer100g: 295.4545,
+    proteinPer100g: 8.5227,
+    carbsPer100g: 52.2727,
+    fatPer100g: 3.9772,
+    description: 'לחמניית המבורגר עם שומשום (88 גרם = 260 קק״ל, 7.5g חלבון, 46g פחמימות, 3.5g שומן)'
+  },
+  {
+    id: 'pita_angel',
+    name: 'פיתה שווארמה אנג׳ל',
+    icon: '🫓',
+    badge: 'משקל יעד: 118 גרם',
+    defaultGrams: 118,
+    kcalPer100g: 235.5932,
+    proteinPer100g: 7.7966,
+    carbsPer100g: 46.6101,
+    fatPer100g: 1.4406,
+    description: 'פיתה שווארמה אנג׳ל (118 גרם = 278 קק״ל, 9.2g חלבון, 55g פחמימות, 1.7g שומן)'
+  },
+  {
+    id: 'bread_slice',
+    name: 'פרוסת לחם אחיד / כפרי',
+    icon: '🍞',
+    badge: 'משקל יעד: 40 גרם',
+    defaultGrams: 40,
+    kcalPer100g: 250.0,
+    proteinPer100g: 9.5,
+    carbsPer100g: 45.0,
+    fatPer100g: 3.0,
+    description: 'פרוסת לחם מדודה (40 גרם = 100 קק״ל, 3.8g חלבון, 18g פחמימות)'
+  },
+  {
+    id: 'chicken_breast',
+    name: 'חזה עוף צלוי / מבושל',
+    icon: '🍗',
+    badge: 'משקל יעד: 150 גרם',
+    defaultGrams: 150,
+    kcalPer100g: 165.0,
+    proteinPer100g: 31.0,
+    carbsPer100g: 0.0,
+    fatPer100g: 3.6,
+    description: 'חזה עוף נקי עשיר בחלבון (100g = 165 קק״ל, 31g חלבון)'
+  },
+  {
+    id: 'cooked_rice',
+    name: 'אורז בסמטי / לבן מבושל',
+    icon: '🍚',
+    badge: 'משקל יעד: 150 גרם',
+    defaultGrams: 150,
+    kcalPer100g: 130.0,
+    proteinPer100g: 2.7,
+    carbsPer100g: 28.0,
+    fatPer100g: 0.3,
+    description: 'אורז מבושל (100g = 130 קק״ל, 28g פחמימות)'
+  },
+  {
+    id: 'smoked_salmon',
+    name: 'פילה סלמון מעושן',
+    icon: '🐟',
+    badge: 'משקל יעד: 100 גרם',
+    defaultGrams: 100,
+    kcalPer100g: 170.0,
+    proteinPer100g: 20.9,
+    carbsPer100g: 0.0,
+    fatPer100g: 8.9,
+    description: 'סלמון מעושן עשיר באומגה 3 (100g = 170 קק״ל, 20.9g חלבון)'
+  },
+  {
+    id: 'peanuts',
+    name: 'בוטנים קלויים',
+    icon: '🥜',
+    badge: 'משקל יעד: 30 גרם',
+    defaultGrams: 30,
+    kcalPer100g: 583.3333,
+    proteinPer100g: 25.6667,
+    carbsPer100g: 16.0,
+    fatPer100g: 49.3333,
+    description: 'בוטנים קלויים שקולים (30 גרם = 175 קק״ל, 7.7g חלבון, 14.8g שומן)'
+  },
+  {
+    id: 'cottage_5',
+    name: 'קוטג׳ 5% (שקילה חופשית)',
+    icon: '🥣',
+    badge: '100 גרם',
+    defaultGrams: 100,
+    kcalPer100g: 90.0,
+    proteinPer100g: 11.0,
+    carbsPer100g: 2.0,
+    fatPer100g: 5.0,
+    description: 'קוטג׳ 5% עשיר בקזאין (100g = 90 קק״ל, 11g חלבון)'
+  },
+  {
+    id: 'custom_weighed',
+    name: 'פריט שקול חופשי (לפי 100 גרם)',
+    icon: '⚖️',
+    badge: 'מותאם אישית',
+    defaultGrams: 100,
+    kcalPer100g: 200.0,
+    proteinPer100g: 10.0,
+    carbsPer100g: 20.0,
+    fatPer100g: 5.0,
+    description: 'הזן ערכי 100 גרם ומשקל מדויק מהמשקל לחישוב אוטומטי'
+  }
+];
+
+export function calculateWeighedMacros(presetOrItem, grams) {
+  const g = Math.max(1, Number(grams) || 1);
+  const ratio = g / 100;
+  return {
+    grams: g,
+    kcal: Math.round((presetOrItem.kcalPer100g || 0) * ratio),
+    protein: Number(((presetOrItem.proteinPer100g || 0) * ratio).toFixed(1)),
+    carbs: Number(((presetOrItem.carbsPer100g || 0) * ratio).toFixed(1)),
+    fat: Number(((presetOrItem.fatPer100g || 0) * ratio).toFixed(1))
+  };
+}
+
+export function logWeighedFoodItem({ name, grams, kcal, protein, carbs, fat, recipe = '' }, user = 'Arik', dateStr = null) {
+  const targetDate = dateStr || new Date().toISOString().split('T')[0];
+  const g = Math.max(1, Math.round(Number(grams) || 1));
+  const rawName = (name || 'פריט שקול').trim();
+  const mealName = rawName.includes('גרם') ? rawName : `${rawName} (${g} גרם)`;
+
+  const meal = {
+    id: 'weighed_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+    name: mealName,
+    recipe: recipe || `שקילה במשקל מטבח: ${g} גרם (${kcal} קק״ל, ${protein}g חלבון, ${carbs}g פח', ${fat}g שומן)`,
+    kcal: Math.round(Number(kcal) || 0),
+    protein: Number((Number(protein) || 0).toFixed(1)),
+    carbs: Number((Number(carbs) || 0).toFixed(1)),
+    fat: Number((Number(fat) || 0).toFixed(1)),
+    isWeighedItem: true,
+    weighedGrams: g,
+    timestamp: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })
+  };
+
+  return saveMeal(user, targetDate, meal);
+}
+
+export function logHamburgerBun(quantity = 1, user = 'Arik', dateStr = null) {
+  return logSingleItemBuildingBlock('hamburger_bun_88g', quantity, user, dateStr);
 }
 
 
