@@ -4802,9 +4802,9 @@ class App {
     });
 
     document.querySelectorAll('.delete-meal-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', async (e) => {
         const id = e.currentTarget.getAttribute('data-delete-id');
-        deleteMeal(state.activeUser, state.selectedDate, id);
+        await deleteMeal(state.activeUser, state.selectedDate, id);
         this.showToast('הארוחה נמחקה מהיומן', 'info');
         this.render();
       });

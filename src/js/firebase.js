@@ -12,6 +12,7 @@ import {
   getDoc,
   getDocs,
   setDoc,
+  updateDoc,
   deleteDoc,
   collection,
   onSnapshot,
@@ -405,6 +406,84 @@ export async function syncDailyLogToCloud(userEmail, dateStr, dailyData) {
   try {
     await setDoc(logRef, payload, { merge: true });
     return payload;
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, `users/${safeEmail}/daily_logs/${dateStr}`);
+    throw err;
+  }
+}
+
+/**
+ * Explicitly updates the meals array in Firestore daily_logs document.
+ * Path: users/{userEmail}/daily_logs/{dateStr}
+ * Uses updateDoc (or setDoc with merge if doc does not exist yet) to permanently overwrite meals.
+ */
+export async function updateDailyMealsInCloud(userEmail, dateStr, meals, totalMacros = null) {
+  if (!userEmail || !dateStr) return false;
+  const safeEmail = sanitizeEmailKey(userEmail);
+  const logRef = doc(db, 'users', safeEmail, 'daily_logs', dateStr);
+
+  const cleanMeals = Array.isArray(meals) ? meals : [];
+
+  let macros = totalMacros;
+  if (!macros) {
+    macros = cleanMeals.reduce((acc, m) => {
+      acc.kcal += Number(m.kcal) || 0;
+      acc.protein += Number(m.protein) || 0;
+      acc.carbs += Number(m.carbs) || 0;
+      acc.fat += Number(m.fat) || 0;
+      return acc;
+    }, { kcal: 0, protein: 0, carbs: 0, fat: 0 });
+    macros.kcal = Math.round(macros.kcal);
+    macros.protein = Number(macros.protein.toFixed(1));
+    macros.carbs = Number(macros.carbs.toFixed(1));
+    macros.fat = Number(macros.fat.toFixed(1));
+  }
+
+  const payload = {
+    date: dateStr,
+    userEmail: safeEmail,
+    meals: cleanMeals,
+    totalMacros: macros,
+    updatedAt: new Date().toISOString()
+  };
+
+  try {
+    // Try updateDoc first to update existing document
+    await updateDoc(logRef, {
+      meals: cleanMeals,
+      totalMacros: macros,
+      updatedAt: payload.updatedAt
+    });
+    return true;
+  } catch (updateErr) {
+    // If document doesn't exist yet, create or merge it with setDoc
+    try {
+      await setDoc(logRef, payload, { merge: true });
+      return true;
+    } catch (setErr) {
+      handleFirestoreError(setErr, OperationType.WRITE, `users/${safeEmail}/daily_logs/${dateStr}`);
+      throw setErr;
+    }
+  }
+}
+
+/**
+ * Explicitly deletes a meal by its unique ID from Firestore daily_logs document.
+ * Path: users/{userEmail}/daily_logs/{dateStr}
+ */
+export async function deleteMealFromDailyLog(userEmail, dateStr, mealId) {
+  if (!userEmail || !dateStr || !mealId) return false;
+  const safeEmail = sanitizeEmailKey(userEmail);
+  const logRef = doc(db, 'users', safeEmail, 'daily_logs', dateStr);
+
+  try {
+    const snap = await getDoc(logRef);
+    if (!snap.exists()) return false;
+    const data = snap.data() || {};
+    const currentMeals = Array.isArray(data.meals) ? data.meals : [];
+    const filteredMeals = currentMeals.filter(m => m && m.id !== mealId);
+
+    return await updateDailyMealsInCloud(safeEmail, dateStr, filteredMeals);
   } catch (err) {
     handleFirestoreError(err, OperationType.WRITE, `users/${safeEmail}/daily_logs/${dateStr}`);
     throw err;

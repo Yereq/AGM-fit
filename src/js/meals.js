@@ -1,7 +1,7 @@
 import { STORAGE_KEYS, QUICK_PRESETS, HERBALIFE_PRODUCTS } from './config.js';
 import { getStoredItem, setStoredItem } from './storage.js';
 import { state } from './state.js';
-import { syncDailyLogToCloud } from './firebase.js';
+import { syncDailyLogToCloud, updateDailyMealsInCloud } from './firebase.js';
 
 // Granit's 3 exact recurring daily Herbalife shakes based on official dry powder nutritional labels
 export const GRANIT_SHAKE_PRESETS = [
@@ -244,23 +244,23 @@ export function saveMeal(user, dateStr, meal) {
   return newMeal;
 }
 
-export function deleteMeal(user, dateStr, mealId) {
+export async function deleteMeal(user, dateStr, mealId) {
   const key = `${STORAGE_KEYS.MEALS_PREFIX}${user}_${dateStr}`;
   let meals = getMealsForDate(user, dateStr);
-  meals = meals.filter(m => m.id !== mealId);
+  
+  // 1. Filter out the deleted meal from the local meals array using its unique id
+  meals = meals.filter(m => m && m.id !== mealId);
   setStoredItem(key, meals);
 
-  // Background Cloud Sync to Firestore: users/{userEmail}/daily_logs/{dateStr}
+  // 2. Perform explicit Firestore update to overwrite the meals array in daily_logs permanently
   try {
     const userEmail = state.getUserEmailKey();
     if (userEmail) {
-      syncDailyLogToCloud(userEmail, dateStr, {
-        meals,
-        totalMacros: calculateDailyMacros(meals)
-      }).catch(err => console.warn('Firestore daily log sync warning:', err));
+      const totalMacros = calculateDailyMacros(meals);
+      await updateDailyMealsInCloud(userEmail, dateStr, meals, totalMacros);
     }
   } catch (err) {
-    console.warn('Daily log sync error:', err);
+    console.error('Error updating meals in Firestore on delete:', err);
   }
 
   return meals;
