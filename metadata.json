@@ -1,0 +1,6 @@
+{
+  "name": "AGM Fit",
+  "description": "Production PWA for nutrition, macro tracking, Tanita metrics, and shared meal catalog for Arik, Granit, and Maor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

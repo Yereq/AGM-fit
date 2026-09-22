@@ -1,0 +1,213 @@
+{
+  "entities": {
+    "Whitelist": {
+      "title": "Whitelist",
+      "description": "Authorized email addresses allowed to access the application",
+      "type": "object",
+      "properties": {
+        "emails": {
+          "type": "array",
+          "description": "List of authorized lowercase email addresses"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of the last update"
+        },
+        "updatedBy": {
+          "type": "string",
+          "description": "Email of the admin who updated the list"
+        }
+      },
+      "required": ["emails"]
+    },
+    "CustomMeal": {
+      "title": "CustomMeal",
+      "description": "Shared custom food and recipe catalog accessible by all authorized users",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique meal ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "Meal name in Hebrew",
+          "maxLength": 100
+        },
+        "recipe": {
+          "type": "string",
+          "description": "Ingredients or recipe notes",
+          "maxLength": 500
+        },
+        "kcal": {
+          "type": "number",
+          "description": "Total calories in kcal"
+        },
+        "protein": {
+          "type": "number",
+          "description": "Protein in grams"
+        },
+        "carbs": {
+          "type": "number",
+          "description": "Carbohydrates in grams"
+        },
+        "fat": {
+          "type": "number",
+          "description": "Fat in grams"
+        },
+        "createdByUser": {
+          "type": "string",
+          "description": "Email of user who created this meal"
+        },
+        "createdByDisplayName": {
+          "type": "string",
+          "description": "Display name of creator"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of creation"
+        }
+      },
+      "required": ["name", "kcal", "protein", "carbs", "fat"]
+    },
+    "DailyLog": {
+      "title": "DailyLog",
+      "description": "Private daily nutrition and activity log for a specific user and date",
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string",
+          "description": "Date string in YYYY-MM-DD format"
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "Email of the user"
+        },
+        "meals": {
+          "type": "array",
+          "description": "Array of logged meal instances"
+        },
+        "workout": {
+          "type": "object",
+          "description": "Workout and step tracking for the day"
+        },
+        "totalMacros": {
+          "type": "object",
+          "description": "Aggregated daily calories and macros"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last update"
+        }
+      },
+      "required": ["date", "userEmail", "meals"]
+    },
+    "TanitaLog": {
+      "title": "TanitaLog",
+      "description": "Private Tanita body composition measurement with all 11 metrics",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique log entry ID"
+        },
+        "date": {
+          "type": "string",
+          "description": "Measurement date in YYYY-MM-DD format"
+        },
+        "weight": {
+          "type": "number",
+          "description": "Body weight in kg"
+        },
+        "bmi": {
+          "type": "number",
+          "description": "Body Mass Index"
+        },
+        "bodyFat": {
+          "type": "number",
+          "description": "Body fat percentage"
+        },
+        "muscleKg": {
+          "type": "number",
+          "description": "Muscle mass in kg"
+        },
+        "boneMass": {
+          "type": "number",
+          "description": "Bone mass in kg"
+        },
+        "bmr": {
+          "type": "number",
+          "description": "Basal metabolic rate in kcal"
+        },
+        "waterPct": {
+          "type": "number",
+          "description": "Body water percentage"
+        },
+        "metabolicAge": {
+          "type": "number",
+          "description": "Metabolic age in years"
+        },
+        "visceralFat": {
+          "type": "number",
+          "description": "Visceral fat rating (1-15)"
+        },
+        "muscleQuality": {
+          "type": "number",
+          "description": "Muscle quality score"
+        },
+        "bodyType": {
+          "type": "number",
+          "description": "Body physique rating (1-9)"
+        },
+        "source": {
+          "type": "string",
+          "description": "Data source (smart_paste, manual, etc)"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO timestamp"
+        }
+      },
+      "required": ["date", "weight"]
+    },
+    "UserTargets": {
+      "title": "UserTargets",
+      "description": "Private user macro and body composition targets",
+      "type": "object",
+      "properties": {
+        "targetWeight": { "type": "number" },
+        "targetKcal": { "type": "number" },
+        "targetProtein": { "type": "number" },
+        "targetCarbs": { "type": "number" },
+        "targetFat": { "type": "number" },
+        "targetVisceralFat": { "type": "number" },
+        "targetBodyFat": { "type": "number" },
+        "focus": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["targetKcal", "targetProtein"]
+    }
+  },
+  "firestore": {
+    "/app_config/whitelist": {
+      "schema": { "$ref": "#/entities/Whitelist" },
+      "description": "App configuration whitelist of authorized Google user emails"
+    },
+    "/custom_meals/{mealId}": {
+      "schema": { "$ref": "#/entities/CustomMeal" },
+      "description": "Shared custom meals collection readable and writable by all authorized users"
+    },
+    "/users/{userEmail}/daily_logs/{date}": {
+      "schema": { "$ref": "#/entities/DailyLog" },
+      "description": "Daily food log, eaten meals and macros for a user"
+    },
+    "/users/{userEmail}/tanita_logs/{logId}": {
+      "schema": { "$ref": "#/entities/TanitaLog" },
+      "description": "Tanita body composition entries for a user"
+    },
+    "/users/{userEmail}/settings/targets": {
+      "schema": { "$ref": "#/entities/UserTargets" },
+      "description": "Macro and weight target settings for a user"
+    }
+  }
+}

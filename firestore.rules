@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email.lower() == 'arik.pic@gmail.com' ||
+        request.auth.token.email.lower() == 'arikpic@gmail.com'
+      );
+    }
+
+    function isUserOrAdmin(userEmail) {
+      return isSignedIn() && (
+        request.auth.token.email.lower() == userEmail.lower() ||
+        isSuperAdmin()
+      );
+    }
+
+    // App config (whitelist of authorized Google user emails and custom profiles)
+    match /app_config/{configDoc} {
+      // Allow reading app config to verify access and load profiles/whitelist
+      allow read: if true;
+      // Only super admin Arik can update app configuration
+      allow write: if isSuperAdmin();
+    }
+
+    // Shared Food Catalog
+    match /custom_meals/{mealId} {
+      allow read: if true;
+      allow create: if isSignedIn() &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() <= 100 &&
+        request.resource.data.kcal is number &&
+        request.resource.data.protein is number &&
+        request.resource.data.carbs is number &&
+        request.resource.data.fat is number;
+      allow update: if isSignedIn() &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() <= 100 &&
+        request.resource.data.kcal is number;
+      allow delete: if isSignedIn();
+    }
+
+    // Private Per-User Records: Daily Logs
+    match /users/{userEmail}/daily_logs/{date} {
+      allow read, write: if isUserOrAdmin(userEmail);
+    }
+
+    // Private Per-User Records: Tanita Logs
+    match /users/{userEmail}/tanita_logs/{logId} {
+      allow read, write: if isUserOrAdmin(userEmail);
+    }
+
+    // Private Per-User Records: Targets Settings
+    match /users/{userEmail}/settings/targets {
+      allow read, write: if isUserOrAdmin(userEmail);
+    }
+  }
+}

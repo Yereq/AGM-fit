@@ -1,0 +1,1170 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    
+    <!-- iOS / PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="AGM Fit" />
+    <meta name="theme-color" content="#0f172a" />
+
+    <title>AGM Fit</title>
+    <meta name="description" content="Production PWA for nutrition, macro tracking, Tanita metrics, and shared meal catalog for Arik, Granit, and Maor." />
+    <meta property="og:title" content="AGM Fit" />
+    <meta property="og:description" content="Production PWA for nutrition, macro tracking, Tanita metrics, and shared meal catalog for Arik, Granit, and Maor." />
+    
+    <link rel="manifest" href="manifest.json" />
+
+    <!-- CDN Libraries for native browser & bundler compatibility -->
+    <!-- 1. Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      if (typeof tailwind !== 'undefined') {
+        tailwind.config = {
+          darkMode: 'class',
+          theme: {
+            extend: {
+              colors: {
+                slate: {
+                  950: '#0b1120',
+                  900: '#0f172a',
+                  800: '#1e293b',
+                  700: '#334155'
+                }
+              }
+            }
+          }
+        };
+      }
+    </script>
+    <!-- 2. Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 3. Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Importmap for Native Browser Modular Firebase ESM -->
+    <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+      }
+    }
+    </script>
+
+    <!-- Application Stylesheets -->
+    <link rel="stylesheet" href="/src/styles/main.css" />
+    <link rel="stylesheet" href="/src/styles/dashboard.css" />
+    <link rel="stylesheet" href="/src/styles/components.css" />
+
+    <!-- Global JSON Circular Protection Trap -->
+    <script>
+      (function() {
+        var _origStringify = JSON.stringify;
+        JSON.stringify = function(val, replacer, space) {
+          try {
+            return _origStringify(val, replacer, space);
+          } catch (err) {
+            if (err && (err.name === 'TypeError' || (err.message && err.message.indexOf('circular') !== -1))) {
+              var seen = new WeakSet();
+              var safeReplacer = function(k, v) {
+                if (typeof replacer === 'function') {
+                  v = replacer(k, v);
+                }
+                if (v !== null && typeof v === 'object') {
+                  if (seen.has(v)) {
+                    return undefined;
+                  }
+                  seen.add(v);
+                }
+                return v;
+              };
+              try {
+                return _origStringify(val, safeReplacer, space);
+              } catch (_) {
+                return '{}';
+              }
+            }
+            throw err;
+          }
+        };
+      })();
+    </script>
+
+    <script>
+      (function() {
+        try {
+          var t = localStorage.getItem('ag_theme') || 'light';
+          var isDark = t === 'slate' || t === 'oled';
+          var mode = isDark ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', t);
+          document.documentElement.setAttribute('data-theme-mode', mode);
+        } catch(e) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-emerald-500 selection:text-slate-950">
+    <div id="app" class="flex flex-col min-h-screen">
+      <!-- Header / Unified Navigation Bar (No horizontal scrolling, single row) -->
+      <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-3 sm:px-4 py-2 safe-area-top">
+        <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
+          <!-- Right side (Start in RTL): Logo & Title -->
+          <div class="flex items-center gap-2 shrink-0">
+            <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center font-black text-slate-950 shadow-md shadow-emerald-500/20 text-xs sm:text-sm shrink-0">
+              AGM
+            </div>
+            <div class="hidden sm:block">
+              <h1 class="font-bold text-xs sm:text-sm text-slate-100 tracking-tight whitespace-nowrap">AGM Fit</h1>
+            </div>
+          </div>
+
+          <!-- Center: Calendar Date & Single User Switcher (Dropdown) -->
+          <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <!-- Calendar Date Button -->
+            <button
+              id="header-calendar-btn"
+              type="button"
+              aria-label="לוח שנה ומעקב תאריכים"
+              title="לוח שנה ומעקב תאריכים"
+              class="h-9 px-2.5 sm:px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 text-slate-200 hover:text-emerald-400 flex items-center gap-1.5 transition-all cursor-pointer min-h-[38px] shrink-0 shadow-sm text-xs font-bold"
+            >
+              <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
+              <span id="header-current-date-text">היום</span>
+            </button>
+
+            <!-- Single User Selector Dropdown (לחיצה אחת לבחירת משתמש) -->
+            <div class="relative z-50" id="user-selector-container">
+              <button
+                id="header-user-select-btn"
+                type="button"
+                aria-haspopup="true"
+                aria-expanded="false"
+                class="h-9 px-2.5 sm:px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700/60 text-slate-100 flex items-center gap-1.5 transition-all cursor-pointer shadow-sm text-xs font-bold min-h-[38px] shrink-0 active:scale-95"
+              >
+                <span id="header-user-color-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
+                <span id="header-user-display-name" class="truncate max-w-[65px] sm:max-w-[100px]">אריק</span>
+                <i data-lucide="chevron-down" id="header-user-chevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0"></i>
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div
+                id="header-user-dropdown"
+                class="absolute right-0 top-full mt-2 w-56 sm:w-60 bg-slate-900 border border-slate-700/90 rounded-2xl shadow-2xl p-2 z-[100] hidden space-y-1 backdrop-blur-xl"
+                style="box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.7);"
+              >
+                <div class="px-2.5 py-1.5 text-[11px] font-bold text-slate-400 border-b border-slate-800 flex items-center justify-between">
+                  <span>בחר פרופיל משתמש:</span>
+                  <span id="header-dropdown-user-count" class="text-[10px] text-slate-500"></span>
+                </div>
+                <div id="header-user-options-list" class="space-y-1 max-h-52 overflow-y-auto py-1">
+                  <!-- Injected via JS -->
+                </div>
+                <div id="header-user-dropdown-actions" class="pt-1.5 border-t border-slate-800">
+                  <button
+                    type="button"
+                    id="header-dropdown-add-user-btn"
+                    class="w-full text-right px-2.5 py-2 rounded-xl text-xs font-bold text-cyan-400 hover:bg-cyan-500/15 transition-colors flex items-center gap-2 cursor-pointer"
+                  >
+                    <i data-lucide="user-plus" class="w-4 h-4 shrink-0"></i>
+                    <span>הקמת משתמש חדש</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Left side (End in RTL): Google Photo ONLY + Hamburger Button -->
+          <div class="flex items-center gap-2 shrink-0">
+            <!-- Google User Photo Only (תמונה בלבד ללא שם) -->
+            <div id="header-auth-user" class="hidden items-center">
+              <div id="header-user-badge" class="relative cursor-pointer transition-transform hover:scale-105" title="חשבון Google מחובר - לחץ לפתיחת תפריט">
+                <img id="header-user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" alt="פרופיל גוגל" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-emerald-500/50 object-cover hidden shadow-sm" />
+                <div id="header-user-initials" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-xs font-bold">
+                  AG
+                </div>
+              </div>
+            </div>
+
+            <!-- Hamburger Button on Left (תפריט המבורגר בצד שמאל) -->
+            <button
+              id="header-hamburger-btn"
+              type="button"
+              aria-label="תפריט ראשי"
+              title="תפריט פעולות והגדרות"
+              class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700/60 text-slate-200 hover:text-emerald-400 flex items-center justify-center transition-all cursor-pointer min-h-[38px] min-w-[38px] shrink-0 shadow-sm"
+            >
+              <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Hamburger Slide-Over Drawer Menu (תפריט המבורגר בצד שמאל) -->
+      <div id="hamburger-drawer" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+        <!-- Backdrop -->
+        <div id="hamburger-backdrop" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity cursor-pointer"></div>
+        
+        <!-- Drawer Panel (Left side) -->
+        <div class="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-slate-900 border-r border-slate-800 shadow-2xl flex flex-col z-10">
+          <!-- Drawer Top Header -->
+          <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center font-black text-slate-950 shadow-md text-xs">
+                AG
+              </div>
+              <h2 id="drawer-title" class="font-bold text-sm text-slate-100">תפריט פעולות והגדרות</h2>
+            </div>
+            <button
+              id="close-hamburger-btn"
+              type="button"
+              aria-label="סגור תפריט"
+              class="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-400 hover:text-slate-100 flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Google User Card inside Drawer -->
+          <div class="p-4 border-b border-slate-800 bg-slate-950/50">
+            <div class="flex items-center gap-3">
+              <img id="drawer-user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" alt="Google Profile" class="w-11 h-11 rounded-full border-2 border-emerald-500/50 object-cover hidden shadow-md" />
+              <div id="drawer-user-initials" class="w-11 h-11 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-sm font-bold shrink-0">
+                AG
+              </div>
+              <div class="overflow-hidden flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 mb-0.5">
+                  <span id="drawer-user-name" class="font-bold text-xs sm:text-sm text-slate-100 truncate block">משתמש מחובר</span>
+                  <span id="drawer-user-role-badge" class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">Super Admin</span>
+                </div>
+                <p id="drawer-user-email" class="text-[11px] text-slate-400 font-mono truncate dir-ltr text-right"></p>
+              </div>
+            </div>
+            <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs">
+              <span class="text-slate-400">פרופיל פעיל:</span>
+              <span id="drawer-active-profile-badge" class="font-bold text-emerald-400">אריק</span>
+            </div>
+            <!-- Quick profile switcher in drawer -->
+            <div class="mt-3 pt-2.5 border-t border-slate-800/80">
+              <div class="text-[11px] font-bold text-slate-400 mb-1.5 flex items-center justify-between">
+                <span>מעבר מהיר בין פרופילים:</span>
+              </div>
+              <div id="drawer-profile-switcher-list" class="space-y-1 max-h-36 overflow-y-auto">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Menu Action Buttons -->
+          <div class="flex-1 overflow-y-auto p-3 space-y-1.5">
+            <!-- 0. Cloud Sync Button -->
+            <button
+              type="button"
+              id="drawer-cloud-sync-btn"
+              class="w-full flex items-center gap-3 p-3 rounded-xl bg-emerald-950/30 hover:bg-emerald-900/40 border border-emerald-500/30 text-emerald-200 hover:text-emerald-100 transition-all text-xs font-bold cursor-pointer"
+            >
+              <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                <i data-lucide="cloud-sync" id="drawer-sync-icon" class="w-4 h-4"></i>
+              </div>
+              <div class="text-right flex-1">
+                <div class="text-emerald-300 font-bold flex items-center justify-between">
+                  <span>סנכרון מלא עם הענן</span>
+                  <span id="drawer-sync-status-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">פעיל</span>
+                </div>
+                <div id="drawer-sync-status-text" class="text-[11px] text-emerald-400/80 font-normal">העלאת כל הנתונים מהטלפון ומשיכה מהענן</div>
+              </div>
+            </button>
+
+            <!-- 1. Profile Settings & Targets -->
+            <button
+              type="button"
+              id="drawer-settings-btn"
+              class="w-full flex items-center gap-3 p-3 rounded-xl bg-slate-800/40 hover:bg-slate-800 text-slate-200 hover:text-emerald-400 transition-all text-xs font-bold cursor-pointer"
+            >
+              <div class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700/50 flex items-center justify-center text-emerald-400 shrink-0">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+              </div>
+              <div class="text-right flex-1">
+                <div class="text-slate-100 font-bold">הגדרות פרופיל ויעדים</div>
+                <div class="text-[11px] text-slate-400 font-normal">עריכת משקל יעד, קלוריות ומאקרו</div>
+              </div>
+            </button>
+
+            <!-- 2. Create User Profile (Super Admin) -->
+            <button
+              type="button"
+              id="drawer-add-user-btn"
+              class="w-full flex items-center gap-3 p-3 rounded-xl bg-cyan-950/20 hover:bg-cyan-950/40 border border-cyan-500/20 text-cyan-200 hover:text-cyan-100 transition-all text-xs font-bold cursor-pointer"
+            >
+              <div class="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+                <i data-lucide="user-plus" class="w-4 h-4"></i>
+              </div>
+              <div class="text-right flex-1">
+                <div class="text-cyan-300 font-bold">הקמת פרופיל משתמש חדש</div>
+                <div class="text-[11px] text-cyan-400/80 font-normal">הוספת משתמש והרשאת Google</div>
+              </div>
+            </button>
+
+            <!-- 3. Manage All Profiles (Super Admin) -->
+            <button
+              type="button"
+              id="drawer-manage-users-btn"
+              class="w-full flex items-center gap-3 p-3 rounded-xl bg-slate-800/40 hover:bg-slate-800 text-slate-200 hover:text-emerald-400 transition-all text-xs font-bold cursor-pointer"
+            >
+              <div class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700/50 flex items-center justify-center text-emerald-400 shrink-0">
+                <i data-lucide="users" class="w-4 h-4"></i>
+              </div>
+              <div class="text-right flex-1">
+                <div class="text-slate-100 font-bold">ניהול כל הפרופילים</div>
+                <div class="text-[11px] text-slate-400 font-normal">צפייה ומחיקת משתמשים עם אזהרה</div>
+              </div>
+            </button>
+
+            <!-- 4. Theme Selection -->
+            <button
+              type="button"
+              id="drawer-theme-btn"
+              class="w-full flex items-center gap-3 p-3 rounded-xl bg-slate-800/40 hover:bg-slate-800 text-slate-200 hover:text-emerald-400 transition-all text-xs font-bold cursor-pointer"
+            >
+              <div class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700/50 flex items-center justify-center text-emerald-400 shrink-0">
+                <i data-lucide="palette" class="w-4 h-4"></i>
+              </div>
+              <div class="text-right flex-1">
+                <div class="text-slate-100 font-bold">ערכת נושא ומראה</div>
+                <div class="text-[11px] text-slate-400 font-normal">בהיר נקי, ירוק על לבן, כהה ועוד</div>
+              </div>
+            </button>
+
+            <!-- 5. Calendar / Date Tracking -->
+            <button
+              type="button"
+              id="drawer-calendar-btn"
+              class="w-full flex items-center gap-3 p-3 rounded-xl bg-slate-800/40 hover:bg-slate-800 text-slate-200 hover:text-emerald-400 transition-all text-xs font-bold cursor-pointer"
+            >
+              <div class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700/50 flex items-center justify-center text-emerald-400 shrink-0">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
+              </div>
+              <div class="text-right flex-1">
+                <div class="text-slate-100 font-bold">יומן מעקב תאריכים</div>
+                <div class="text-[11px] text-slate-400 font-normal">בחירת תאריך להיסטוריית ארוחות ומדדים</div>
+              </div>
+            </button>
+          </div>
+
+          <!-- Drawer Footer: Logout -->
+          <div class="p-4 border-t border-slate-800 bg-slate-950/40">
+            <button
+              type="button"
+              id="drawer-logout-btn"
+              class="w-full py-2.5 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 hover:text-red-300 transition-all text-xs font-bold flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
+            >
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+              <span>התנתקות מחשבון Google</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Container View -->
+      <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-6 view-scroll-buffer">
+        <!-- Dashboard View (Injected via JS) -->
+        <div id="view-dashboard" class="space-y-6"></div>
+
+        <!-- Quick Meals Section Template -->
+        <template id="quick-meals-section-template">
+          <div class="quick-meals-section" aria-label="מנות מהירות">
+            <button
+              type="button"
+              id="btn-preset-yellow-cheese-sandwich"
+              data-preset-name="כריך גבינה צהובה (2 פרוסות + 3 כפות גבנ״צ)"
+              data-image="assets/images/cheese_sandwich.jpg"
+              data-kcal="306"
+              data-protein="15.1"
+              data-carbs="36.0"
+              data-fat="10.8"
+              class="quick-preset-btn"
+            >
+              כריך גבינה צהובה (2 פרוסות + 3 כפות גבנ״צ)
+            </button>
+            <button
+              type="button"
+              id="btn-preset-egg-sandwich"
+              data-preset-name="כריך ביצים וסחוג (2 פרוסות + 2 ביצים L)"
+              data-image="assets/images/egg_sandwich.jpg"
+              data-kcal="380"
+              data-protein="21.0"
+              data-carbs="37.5"
+              data-fat="13.0"
+              class="quick-preset-btn"
+            >
+              כריך ביצים וסחוג (2 פרוסות + 2 ביצים L)
+            </button>
+            <button
+              type="button"
+              id="btn-preset-smoked-salmon"
+              data-preset-name="פילה סלמון מעושן (100 גרם)"
+              data-image="assets/images/salmon.jpg"
+              data-kcal="170"
+              data-protein="20.9"
+              data-carbs="0"
+              data-fat="8.9"
+              class="quick-preset-btn"
+            >
+              פילה סלמון מעושן (100 גרם)
+            </button>
+            <button
+              type="button"
+              id="btn-preset-pita-angel"
+              data-preset-name="פיתה שווארמה אנג׳ל (118 גרם)"
+              data-image="assets/images/pita_angel.jpg"
+              data-kcal="278"
+              data-protein="9.2"
+              data-carbs="55.0"
+              data-fat="1.7"
+              class="quick-preset-btn"
+            >
+              פיתה שווארמה אנג׳ל (118 גרם)
+            </button>
+            <button
+              type="button"
+              id="btn-preset-peanuts"
+              data-preset-name="בוטנים קלויים (30 גרם)"
+              data-image="assets/images/peanuts.jpg"
+              data-kcal="175"
+              data-protein="7.7"
+              data-carbs="4.8"
+              data-fat="14.8"
+              class="quick-preset-btn"
+            >
+              בוטנים קלויים (30 גרם)
+            </button>
+            <button
+              type="button"
+              id="btn-preset-toblerone-white"
+              data-preset-name="טובלרון לבן קטן (יחידה 8 גרם)"
+              data-image="assets/images/toblerone_white.jpg"
+              data-kcal="43"
+              data-protein="0.5"
+              data-carbs="5.0"
+              data-fat="2.3"
+              class="quick-preset-btn"
+            >
+              טובלרון לבן קטן (יחידה 8 גרם)
+            </button>
+            <button
+              type="button"
+              id="btn-preset-toblerone-milk-nuts"
+              data-preset-name="טובלרון אגוזים/חלב קטן (יחידה 8 גרם)"
+              data-image="assets/images/toblerone_one.jpg"
+              data-kcal="43"
+              data-protein="0.4"
+              data-carbs="4.8"
+              data-fat="2.4"
+              class="quick-preset-btn"
+            >
+              טובלרון אגוזים/חלב קטן (יחידה 8 גרם)
+            </button>
+          </div>
+        </template>
+
+        <!-- Herbalife Products Section Template -->
+        <template id="herbalife-section-template">
+          <div class="herbalife-section" aria-label="שייקים ומוצרי Herbalife">
+            <button
+              type="button"
+              id="btn-herbalife-protein-chips"
+              data-product-name="צ'יפס חלבון Herbalife (שקית 30 גרם)"
+              data-image="assets/images/protein_chips.jpg"
+              data-kcal="134"
+              data-protein="11.3"
+              data-carbs="11.5"
+              data-fat="4.4"
+              class="herbalife-product-btn"
+            >
+              צ'יפס חלבון Herbalife (שקית 30 גרם)
+            </button>
+          </div>
+        </template>
+      </main>
+
+      <!-- Bottom Navigation Bar - Strictly Single Compact Row -->
+      <nav class="fixed bottom-0 left-0 right-0 z-30 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 bottom-nav-single-row shadow-2xl">
+        <div class="max-w-md mx-auto h-full flex justify-around items-center px-2">
+          <button data-tab="dashboard" class="nav-tab flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-400 hover:text-emerald-400 transition-all min-h-[44px] min-w-[48px] cursor-pointer">
+            <i data-lucide="layout-dashboard" class="w-5 h-5 mb-0.5 shrink-0"></i>
+            <span class="text-[11px] font-medium leading-none whitespace-nowrap">ראשי</span>
+          </button>
+          <button data-tab="meals" class="nav-tab flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-400 hover:text-emerald-400 transition-all min-h-[44px] min-w-[48px] cursor-pointer">
+            <i data-lucide="utensils" class="w-5 h-5 mb-0.5 shrink-0"></i>
+            <span class="text-[11px] font-medium leading-none whitespace-nowrap">תזונה</span>
+          </button>
+          <button data-tab="tanita" class="nav-tab flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-400 hover:text-emerald-400 transition-all min-h-[44px] min-w-[48px] cursor-pointer">
+            <i data-lucide="scale" class="w-5 h-5 mb-0.5 shrink-0"></i>
+            <span class="text-[11px] font-medium leading-none whitespace-nowrap">טניטה</span>
+          </button>
+          <button data-tab="coach" class="nav-tab flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-400 hover:text-emerald-400 transition-all min-h-[44px] min-w-[48px] cursor-pointer">
+            <i data-lucide="bot" class="w-5 h-5 mb-0.5 shrink-0"></i>
+            <span class="text-[11px] font-medium leading-none whitespace-nowrap">מאמן AI</span>
+          </button>
+          <button data-tab="settings" class="nav-tab flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-400 hover:text-emerald-400 transition-all min-h-[44px] min-w-[48px] cursor-pointer">
+            <i data-lucide="sliders" class="w-5 h-5 mb-0.5 shrink-0"></i>
+            <span class="text-[11px] font-medium leading-none whitespace-nowrap">נתונים</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Google Login Overlay Modal for AGM Fit -->
+    <div id="auth-login-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-md hidden transition-all">
+      <div class="w-full max-w-md bg-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 text-center">
+        <div class="flex justify-center">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center font-black text-slate-950 shadow-xl shadow-emerald-500/20 text-2xl tracking-wider">
+            AGM
+          </div>
+        </div>
+        <div class="space-y-2">
+          <h2 class="text-xl sm:text-2xl font-black text-slate-100 tracking-tight">AGM Fit</h2>
+          <p class="text-xs sm:text-sm text-slate-400">מעקב כושר, תזונה וסנכרון נתונים בענן</p>
+        </div>
+        <div class="p-3.5 bg-slate-950/60 rounded-2xl border border-slate-800 text-xs text-slate-300 space-y-1.5 text-right">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+            <span>מערכת פרטית ומאובטחת</span>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            הגישה למערכת מורשית לחברי צוות AGM Fit בלבד (Super Admin: arik.pic@gmail.com ומשתמשים מאושרים ברשימת הגישה).
+          </p>
+        </div>
+        <div id="auth-overlay-alert" class="hidden p-3 rounded-xl text-xs font-bold transition-all text-center"></div>
+        <button
+          id="google-login-btn"
+          type="button"
+          class="w-full py-3.5 px-5 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm flex items-center justify-center gap-3 transition-all shadow-lg hover:shadow-xl cursor-pointer active:scale-95"
+        >
+          <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span>התחבר באמצעות Google</span>
+        </button>
+
+        <div id="auth-loading-spinner" class="hidden flex items-center justify-center gap-2 text-xs text-slate-400">
+          <i data-lucide="loader-2" class="w-4 h-4 animate-spin text-emerald-400"></i>
+          <span>מאמת נתונים מול שרתי Firebase...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic Profile & Settings Modal -->
+    <div id="profile-modal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
+      <div class="modal-content w-full max-w-lg bg-slate-900 border border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold">
+              <i data-lucide="user-cog" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h2 id="profile-modal-title" class="text-base sm:text-lg font-bold text-slate-100">הגדרות פרופיל ויעדים</h2>
+              <p id="profile-modal-subtitle" class="text-xs text-slate-400">עריכת נתונים אישיים, יעדי קלוריות, מאקרו והרכב גוף</p>
+            </div>
+          </div>
+          <button id="close-profile-modal-btn" type="button" aria-label="סגור חלון" class="w-10 h-10 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-400 hover:text-slate-100 flex items-center justify-center transition-colors cursor-pointer min-h-[44px] min-w-[44px]">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Modal Tabs Switcher -->
+        <div class="flex bg-slate-950/80 p-1 rounded-xl border border-slate-800 gap-1">
+          <button type="button" id="modal-tab-edit-btn" class="flex-1 py-2 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-emerald-500 text-slate-950 shadow-sm cursor-pointer">
+            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+            <span>עריכת פרופיל</span>
+          </button>
+          <button type="button" id="modal-tab-create-btn" class="flex-1 py-2 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 text-cyan-400 hover:text-cyan-300 hover:bg-slate-800/60 cursor-pointer">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+            <span>➕ הקמת פרופיל</span>
+          </button>
+          <button type="button" id="modal-tab-manage-btn" class="flex-1 py-2 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 cursor-pointer">
+            <i data-lucide="users" class="w-3.5 h-3.5"></i>
+            <span>👥 כל המשתמשים</span>
+          </button>
+        </div>
+
+        <!-- View 1: Edit Active Profile Form -->
+        <div id="modal-view-edit" class="space-y-4">
+        <!-- Form -->
+        <form id="profile-form" class="space-y-4">
+          <!-- Active User Badge & Quick Switch -->
+          <div class="flex items-center justify-between bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400">פרופיל פעיל לעריכה:</span>
+              <span id="profile-form-user-badge" class="font-bold text-emerald-400 px-3 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30">אריק</span>
+            </div>
+            <button type="button" id="modal-goto-create-btn" class="text-xs font-bold text-cyan-300 hover:text-cyan-200 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-all">
+              <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+              <span>הקם פרופיל חדש</span>
+            </button>
+          </div>
+
+          <!-- Section: Linked Gmail for Google Sign-In -->
+          <div class="space-y-1.5 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
+            <label for="prof-email" class="block text-xs text-slate-300 font-semibold mb-1 flex items-center justify-between">
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="mail" class="w-3.5 h-3.5 text-cyan-400"></i>
+                <span>כתובת Gmail מקושרת (להתחברות באמצעות Google)</span>
+              </span>
+              <span class="text-[10px] text-cyan-400 font-mono" id="prof-email-badge">Google Sign-In</span>
+            </label>
+            <input
+              type="email"
+              id="prof-email"
+              placeholder="user@gmail.com"
+              class="input-field text-xs text-cyan-300 font-mono dir-ltr text-right"
+            />
+            <p class="text-[11px] text-slate-400">משתמש זה יוכל להתחבר ישירות באמצעות חשבון ה-Gmail שלו ויהיה מקושר רק לפרופיל זה.</p>
+          </div>
+
+          <!-- Section: Physical Specs -->
+          <div class="space-y-2">
+            <div class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="ruler" class="w-3.5 h-3.5 text-cyan-400"></i>
+              נתונים פיזיים
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label for="prof-height" class="block text-xs text-slate-400 mb-1">גובה (ס"מ)</label>
+                <input type="number" id="prof-height" min="100" max="230" step="any" required class="input-field text-xs" />
+              </div>
+              <div>
+                <label for="prof-start-weight" class="block text-xs text-slate-400 mb-1">משקל התחלתי (ק"ג)</label>
+                <input type="number" id="prof-start-weight" min="30" max="250" step="any" required class="input-field text-xs text-slate-200 font-semibold" />
+              </div>
+              <div>
+                <label for="prof-target-weight" class="block text-xs text-slate-400 mb-1">משקל יעד (ק"ג)</label>
+                <input type="number" id="prof-target-weight" min="30" max="250" step="any" required class="input-field text-xs text-emerald-400 font-semibold" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Auto-Macro Engine (Derived from Target Weight & Tanita BMR) -->
+          <div class="space-y-2.5 bg-slate-950/70 p-3.5 rounded-xl border border-slate-800">
+            <div class="flex items-center justify-between">
+              <div class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>מנוע מאקרו אוטומטי (Auto-Macro)</span>
+              </div>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                מחושב אוטומטית לפי משקל יעד ו-BMR
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400">
+              תחזוקה (TDEE = BMR × 1.35) וגירעון קלורי נקבעים ישירות לפי משקל היעד ומדידת ה-BMR מטניטה ללא צורך בהזנה ידנית.
+            </p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+              <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800/80 text-center">
+                <div class="text-[10px] text-slate-400">יעד קלוריות</div>
+                <div id="modal-auto-kcal" class="text-base font-extrabold text-emerald-400">-- kcal</div>
+                <div id="modal-auto-deficit" class="text-[10px] text-slate-500">גירעון: --</div>
+              </div>
+              <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800/80 text-center">
+                <div class="text-[10px] text-slate-400">יעד חלבון</div>
+                <div id="modal-auto-protein" class="text-base font-extrabold text-blue-400">-- g</div>
+                <div class="text-[10px] text-slate-500">~1.8g / ק"ג</div>
+              </div>
+              <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800/80 text-center">
+                <div class="text-[10px] text-slate-400">יעד פחמימה</div>
+                <div id="modal-auto-carbs" class="text-base font-extrabold text-amber-400">-- g</div>
+                <div class="text-[10px] text-slate-500">איזון אנרגטי</div>
+              </div>
+              <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800/80 text-center">
+                <div class="text-[10px] text-slate-400">יעד שומן</div>
+                <div id="modal-auto-fat" class="text-base font-extrabold text-purple-400">-- g</div>
+                <div class="text-[10px] text-slate-500">תמיכה הורמונלית</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Tanita Body Composition Targets -->
+          <div class="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
+            <div class="flex items-center justify-between">
+              <div class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="scale" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>יעדי הרכב גוף (טניטה)</span>
+              </div>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-1">
+                <span>🔒</span>
+                <span>נעול לתקן רפואי מומלץ</span>
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400">
+              המשקל מודד את המצב הקיים בזמן שקילה. שדות אלו הם היעדים הרפואיים המומלצים להרכב הגוף (מוגדרים אוטומטית ונעולים).
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div>
+                <label for="prof-target-visceral" class="block text-xs text-slate-400 mb-1 flex items-center justify-between">
+                  <span>שומן ויסצראלי יעד (1-12)</span>
+                  <span class="text-[10px] text-amber-400 font-normal">🔒 נעול לתקן בריא</span>
+                </label>
+                <input type="number" id="prof-target-visceral" min="1" max="15" step="any" readonly class="input-field text-xs text-amber-400 font-bold bg-slate-900/60 cursor-not-allowed" />
+              </div>
+              <div>
+                <label for="prof-target-body-fat" class="block text-xs text-slate-400 mb-1 flex items-center justify-between">
+                  <span>יעד אחוז שומן (%)</span>
+                  <span class="text-[10px] text-emerald-400 font-normal">🔒 נעול לתקן חיטוב</span>
+                </label>
+                <input type="number" id="prof-target-body-fat" min="3" max="50" step="any" readonly class="input-field text-xs text-emerald-400 font-bold bg-slate-900/60 cursor-not-allowed" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Focus Description -->
+          <div>
+            <label for="prof-focus" class="block text-xs text-slate-400 mb-1">פוקוס ומטרת אימון אישית</label>
+            <input type="text" id="prof-focus" required class="input-field text-xs" />
+          </div>
+
+          <!-- Notification Toast Box inside modal -->
+          <div id="profile-modal-alert" class="hidden p-3 rounded-xl text-xs font-medium transition-all"></div>
+
+          <!-- Actions -->
+          <div class="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-800">
+            <button type="button" id="reset-profile-btn" class="text-xs text-slate-400 hover:text-red-400 transition-colors py-2 px-3 rounded-lg hover:bg-slate-800/60 cursor-pointer min-h-[44px] flex items-center justify-center">
+              שחזר ברירות מחדל
+            </button>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <button type="button" id="cancel-profile-btn" class="btn-secondary text-xs flex-1 sm:flex-initial">
+                ביטול
+              </button>
+              <button type="submit" id="save-profile-btn" class="btn-primary text-xs flex-1 sm:flex-initial flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px] min-w-[120px] font-bold">
+                <i data-lucide="check" class="w-4 h-4"></i>
+                <span id="save-profile-btn-text">שמור שינויים</span>
+              </button>
+            </div>
+          </div>
+        </form>
+        </div>
+
+        <!-- View 2: Create User Profile Form -->
+        <div id="modal-view-create" class="hidden space-y-4">
+          <div class="p-3.5 bg-cyan-950/30 border border-cyan-500/30 rounded-xl text-xs text-cyan-200 flex items-start gap-2.5">
+            <i data-lucide="sparkles" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>
+            <div>
+              <strong class="text-cyan-300 block mb-0.5">הקמת פרופיל משתמש חדש</strong>
+              <span>הזן את פרטי המשתמש. יעדי הקלוריות, החלבון, הפחמימות והשומן יחושבו אוטומטית לפי משקל היעד והמגדר.</span>
+            </div>
+          </div>
+
+          <form id="modal-create-user-form" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="modal-new-name" class="block text-xs text-slate-300 font-semibold mb-1">
+                  מזהה ייחודי באנגלית <span class="text-cyan-400 font-mono">(User ID)</span>
+                </label>
+                <input
+                  type="text"
+                  id="modal-new-name"
+                  placeholder="למשל: Yossi, Maya"
+                  required
+                  pattern="[A-Za-z0-9_-]+"
+                  class="input-field text-xs text-slate-100 dir-ltr text-right"
+                />
+              </div>
+              <div>
+                <label for="modal-new-hebrew-name" class="block text-xs text-slate-300 font-semibold mb-1">
+                  שם מלא לתצוגה בעברית
+                </label>
+                <input
+                  type="text"
+                  id="modal-new-hebrew-name"
+                  placeholder="למשל: יוסי, מיה כהן"
+                  required
+                  class="input-field text-xs text-slate-100"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="modal-new-email" class="block text-xs text-slate-300 font-semibold mb-1 flex items-center justify-between">
+                <span class="flex items-center gap-1.5">
+                  <i data-lucide="mail" class="w-3.5 h-3.5 text-cyan-400"></i>
+                  <span>כתובת Gmail של המשתמש</span>
+                </span>
+                <span class="text-cyan-400 font-mono text-[10px]">(להתחברות באמצעות Google)</span>
+              </label>
+              <input
+                type="email"
+                id="modal-new-email"
+                placeholder="user@gmail.com"
+                class="input-field text-xs text-slate-100 dir-ltr text-right"
+              />
+              <p class="text-[11px] text-slate-400 mt-1">מאפשר למשתמש להתחבר עם Google ולגשת לפרופיל שלו בלבד.</p>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div>
+                <label for="modal-new-gender" class="block text-xs text-slate-300 font-semibold mb-1">מגדר</label>
+                <select id="modal-new-gender" class="input-field text-xs text-slate-100">
+                  <option value="male">זכר</option>
+                  <option value="female">נקבה</option>
+                </select>
+              </div>
+              <div>
+                <label for="modal-new-height" class="block text-xs text-slate-300 font-semibold mb-1">גובה (ס"מ)</label>
+                <input
+                  type="number"
+                  id="modal-new-height"
+                  value="170"
+                  min="100"
+                  max="230"
+                  required
+                  class="input-field text-xs text-slate-100"
+                />
+              </div>
+              <div>
+                <label for="modal-new-start-weight" class="block text-xs text-slate-300 font-semibold mb-1">משקל התחלתי</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  id="modal-new-start-weight"
+                  value="75"
+                  min="30"
+                  max="250"
+                  required
+                  class="input-field text-xs text-slate-100"
+                />
+              </div>
+              <div>
+                <label for="modal-new-target-weight" class="block text-xs text-slate-300 font-semibold mb-1">משקל יעד (ק"ג)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  id="modal-new-target-weight"
+                  value="68"
+                  min="30"
+                  max="250"
+                  required
+                  class="input-field text-xs text-emerald-400 font-bold"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="modal-new-focus" class="block text-xs text-slate-300 font-semibold mb-1">
+                מטרת פוקוס / תיאור יעד אישי
+              </label>
+              <input
+                type="text"
+                id="modal-new-focus"
+                placeholder="למשל: חיטוב, ירידה במשקל ואיזון הרכב גוף"
+                class="input-field text-xs text-slate-100"
+              />
+            </div>
+
+            <!-- Toast / Alert box inside create view -->
+            <div id="modal-create-alert" class="hidden p-3 rounded-xl text-xs font-medium transition-all"></div>
+
+            <div class="flex items-center justify-between gap-3 pt-3 border-t border-slate-800">
+              <button type="button" id="modal-cancel-create-btn" class="btn-secondary text-xs">
+                חזור לעריכת פרופיל
+              </button>
+              <button
+                type="submit"
+                id="modal-submit-create-btn"
+                class="btn-primary text-xs font-bold py-2.5 px-5 flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
+              >
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>הקם והפעל פרופיל חדש</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- View 3: Manage All Profiles View -->
+        <div id="modal-view-manage" class="hidden space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <span class="text-xs text-slate-400 font-medium">פרופילי משתמשים רשומים:</span>
+            <button
+              type="button"
+              id="modal-manage-goto-create-btn"
+              class="btn-primary text-xs py-1.5 px-3 flex items-center gap-1.5 cursor-pointer font-bold"
+            >
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <span>הקם פרופיל חדש</span>
+            </button>
+          </div>
+          <div id="modal-users-list-container" class="space-y-2 max-h-[50vh] overflow-y-auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Double Confirmation Delete User Modal (אזהרה כפולה למחיקת משתמש) -->
+    <div id="delete-user-modal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="delete-user-modal-title">
+      <div class="modal-content w-full max-w-md bg-slate-900 border border-amber-500/40 rounded-2xl p-6 shadow-2xl space-y-5" id="delete-user-modal-box">
+        <!-- Step 1: First Warning -->
+        <div id="delete-user-step-1" class="space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold shrink-0">
+              <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 text-[10px] font-bold mb-1">
+                <span>אזהרה 1 מתוך 2</span>
+              </div>
+              <h3 id="delete-user-modal-title" class="text-base font-bold text-slate-100">האם למחוק את המשתמש?</h3>
+            </div>
+          </div>
+          
+          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2 text-xs text-slate-300">
+            <p>הינך מבקש למחוק את פרופיל המשתמש: <strong id="delete-user-target-name" class="text-amber-300 font-bold text-sm"></strong></p>
+            <p id="delete-user-target-email-info" class="text-slate-400"></p>
+            <p class="text-amber-200/90 leading-relaxed">פעולה זו תסיר את נתוני הפרופיל ויעדי התזונה, ותבטל את הרשאת הכניסה שלו לאפליקציה.</p>
+          </div>
+
+          <div class="flex items-center gap-3 pt-2">
+            <button type="button" id="delete-user-cancel-btn-1" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all cursor-pointer min-h-[44px]">
+              ביטול
+            </button>
+            <button type="button" id="delete-user-next-step-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[44px] shadow-lg shadow-amber-600/20">
+              <span>המשך לאזהרה סופית</span>
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Second Warning (Double Warning & Final Confirmation) -->
+        <div id="delete-user-step-2" class="space-y-4 hidden">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-red-500/20 border border-red-500/50 flex items-center justify-center text-red-400 font-bold shrink-0 animate-pulse">
+              <i data-lucide="shield-alert" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 text-[10px] font-extrabold mb-1">
+                <span>אזהרה כפולה (2 מתוך 2) - בלתי הפיך!</span>
+              </div>
+              <h3 class="text-base font-bold text-red-400">אישור מחיקה סופי ומוחלט</h3>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-red-950/40 border border-red-500/40 space-y-2 text-xs text-red-200">
+            <p class="font-bold text-sm text-red-300">⚠️ שים לב! לא ניתן לשחזר פרופיל שנמחק.</p>
+            <p>האם אתה בטוח במאת האחוזים שברצונך למחוק לצמיתות את המשתמש <strong id="delete-user-target-name-final" class="text-white underline"></strong>?</p>
+          </div>
+
+          <div class="flex items-center gap-3 pt-2">
+            <button type="button" id="delete-user-cancel-btn-2" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all cursor-pointer min-h-[44px]">
+              ביטול וחזרה
+            </button>
+            <button type="button" id="delete-user-confirm-final-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[44px] shadow-lg shadow-red-600/30">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+              <span>כן, מחק משתמש לצמיתות</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Calendar Modal -->
+    <div id="calendar-modal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="calendar-modal-title">
+      <div class="modal-content w-full max-w-sm sm:max-w-md bg-slate-900 border border-slate-700/80 rounded-2xl p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <!-- Calendar Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <i data-lucide="calendar" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h2 id="calendar-modal-title" class="text-base font-bold text-slate-100">יומן מעקב תאריכים</h2>
+              <p class="text-xs text-slate-400">בחר יום לצפייה בארוחות, מאקרו ומדדי טניטה</p>
+            </div>
+          </div>
+          <button id="close-calendar-modal-btn" type="button" aria-label="סגור לוח שנה" class="w-10 h-10 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-400 hover:text-slate-100 flex items-center justify-center transition-colors cursor-pointer min-h-[44px] min-w-[44px]">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Month Navigation -->
+        <div class="flex items-center justify-between bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
+          <button id="cal-prev-month-btn" type="button" aria-label="חודש קודם" class="p-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+          <div id="cal-month-year-label" class="text-sm font-extrabold text-slate-100"></div>
+          <button id="cal-next-month-btn" type="button" aria-label="חודש הבא" class="p-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Day of Week Headers -->
+        <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400 pb-1">
+          <div>א'</div>
+          <div>ב'</div>
+          <div>ג'</div>
+          <div>ד'</div>
+          <div>ה'</div>
+          <div>ו'</div>
+          <div>ש'</div>
+        </div>
+
+        <!-- Calendar Days Grid -->
+        <div id="cal-days-grid" class="grid grid-cols-7 gap-1 text-center text-xs min-h-[220px]">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Legend -->
+        <div class="flex items-center justify-center gap-4 pt-2 text-[11px] text-slate-400 border-t border-slate-800">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <span>ארוחות נרשמו</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+            <span>מדידת טניטה</span>
+          </div>
+        </div>
+
+        <!-- Jump to Today button -->
+        <div class="flex justify-between items-center pt-2">
+          <span id="cal-selected-info" class="text-xs text-slate-400 font-medium"></span>
+          <button id="cal-today-btn" type="button" class="btn-secondary text-xs py-2 px-3">
+            חזור להיום
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Theme Selection Modal -->
+    <div id="theme-modal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="theme-modal-title">
+      <div class="modal-content w-full max-w-md bg-slate-900 border border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <i data-lucide="palette" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h2 id="theme-modal-title" class="text-base font-bold text-slate-100">ערכת נושא לעיצוב</h2>
+              <p class="text-xs text-slate-400">בחר את המראה והסגנון המועדף עליך</p>
+            </div>
+          </div>
+          <button id="close-theme-modal-btn" type="button" aria-label="סגור חלון" class="w-10 h-10 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-400 hover:text-slate-100 flex items-center justify-center transition-colors cursor-pointer min-h-[44px] min-w-[44px]">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <div id="theme-options-container" class="space-y-2.5">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Tanita Metric Information & Health Guide Modal (? Modal) -->
+    <div id="tanita-info-modal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="tanita-info-modal-title">
+      <div class="modal-content w-full max-w-lg bg-slate-900 border border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-3">
+            <div id="tanita-info-modal-icon-container" class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+              <i data-lucide="info" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 id="tanita-info-modal-title" class="text-base sm:text-lg font-black text-slate-100">מדד הרכב גוף</h2>
+                <span id="tanita-info-modal-badge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">מידע והמלצות</span>
+              </div>
+              <p id="tanita-info-modal-subtitle" class="text-xs text-slate-400 mt-0.5">מדריך קליני והמלצות לשיפור ושימור תוצאות</p>
+            </div>
+          </div>
+          <button id="close-tanita-info-modal-btn" type="button" aria-label="סגור חלון" class="w-10 h-10 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-400 hover:text-slate-100 flex items-center justify-center transition-colors cursor-pointer min-h-[44px] min-w-[44px]">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Dynamic Body Content -->
+        <div id="tanita-info-modal-body" class="space-y-4 text-xs">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Footer -->
+        <div class="pt-3 border-t border-slate-800 flex justify-end">
+          <button id="close-tanita-info-bottom-btn" type="button" class="btn-secondary text-xs px-5 py-2.5 font-bold cursor-pointer">
+            סגור
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Global Toast Notification -->
+    <div id="global-toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 transform -translate-y-10 opacity-0 px-4 py-3 rounded-xl shadow-2xl text-xs font-black flex items-center gap-2 border max-w-sm w-full mx-4 justify-center"></div>
+
+    <div id="client-error-banner" class="hidden fixed bottom-20 left-4 right-4 z-50 p-4 rounded-xl bg-red-950/95 border border-red-500 text-red-200 text-xs font-mono shadow-2xl space-y-2">
+      <div class="flex items-center justify-between font-bold text-red-400">
+        <span class="flex items-center gap-1.5">
+          <span>⚠️</span>
+          <span>שגיאה באפליקציה</span>
+        </span>
+        <div class="flex items-center gap-2">
+          <button onclick="document.getElementById('client-error-banner').classList.add('hidden')" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-300 text-[11px] cursor-pointer">סגור ✕</button>
+          <button onclick="location.reload()" class="px-2.5 py-1 bg-red-700 hover:bg-red-600 rounded text-white text-[11px] cursor-pointer font-bold">רענן עמוד</button>
+        </div>
+      </div>
+      <div id="client-error-message" class="text-[11px] break-words whitespace-pre-wrap max-h-32 overflow-y-auto"></div>
+    </div>
+
+    <script>
+      window.addEventListener('error', function(e) {
+        // Do not intercept non-script resource load errors (images, icons, styles, audio)
+        if (e.target && e.target.tagName && e.target.tagName !== 'SCRIPT') {
+          return;
+        }
+        var banner = document.getElementById('client-error-banner');
+        var msg = document.getElementById('client-error-message');
+        if (banner && msg) {
+          var errText = (e.message || (e.target && e.target.src ? 'Failed to load script: ' + e.target.src : 'Unknown script error')).toString();
+          if (/websocket|vite|ws:\/\/|wss:\/\/|closed without opened|Failed to load: https:\/\/ais-dev/i.test(errText)) {
+            return;
+          }
+          banner.classList.remove('hidden');
+          msg.textContent = errText + (e.filename ? ' (' + e.filename + ':' + e.lineno + ')' : '');
+        }
+      }, true);
+      window.addEventListener('unhandledrejection', function(e) {
+        var banner = document.getElementById('client-error-banner');
+        var msg = document.getElementById('client-error-message');
+        if (banner && msg) {
+          var reasonStr = (e.reason ? (e.reason.stack || e.reason.message || e.reason) : '').toString();
+          if (/websocket|vite|ws:\/\/|wss:\/\/|closed without opened|unauthorized-domain/i.test(reasonStr)) {
+            return;
+          }
+          banner.classList.remove('hidden');
+          msg.textContent = 'Promise Rejection: ' + (e.reason ? (e.reason.stack || e.reason.message || e.reason) : 'Unknown reason');
+        }
+      });
+    </script>
+
+    <!-- Application Bootstrap Script -->
+    <script type="module" src="/src/js/app.js"></script>
+    <script>
+      // Cleanly unregister any old/stale Service Workers and caches to guarantee instant fresh loading
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          var unregisteredAny = false;
+          for (const registration of registrations) {
+            registration.unregister();
+            unregisteredAny = true;
+          }
+          if (unregisteredAny && !sessionStorage.getItem('ag_sw_cleaned_v2')) {
+            sessionStorage.setItem('ag_sw_cleaned_v2', '1');
+            window.location.reload();
+          }
+        }).catch(() => {});
+      }
+      if ('caches' in window) {
+        caches.keys().then((names) => {
+          for (const name of names) caches.delete(name);
+        }).catch(() => {});
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1708 @@
+/* Forms, buttons, inputs, log lists, modal dialogs */
+.btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  color: #0f172a;
+  font-weight: 700;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  cursor: pointer;
+}
+.btn-primary:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: rgba(51, 65, 85, 0.6);
+  color: #f8fafc;
+  font-weight: 600;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(71, 85, 105, 0.8);
+  transition: all 0.2s ease;
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.btn-secondary:hover {
+  background: rgba(71, 85, 105, 0.8);
+}
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+.input-field {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: #f8fafc;
+  width: 100%;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+.input-field:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+/* Smart Paste Textarea */
+.smart-paste-area {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1.5px dashed rgba(56, 189, 248, 0.4);
+  border-radius: 0.875rem;
+  padding: 0.875rem 1rem;
+  color: #f8fafc;
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+  resize: vertical;
+}
+.smart-paste-area:focus {
+  outline: none;
+  border-color: #38bdf8;
+  border-style: solid;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+/* Visceral Fat Highlight Card */
+.visceral-highlight-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1.5px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.12);
+  border-radius: 1rem;
+}
+.visceral-target-met {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+}
+
+/* Single-Item Quick Loggers with Interactive Steppers */
+.single-item-card {
+  position: relative;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(51, 65, 85, 0.7);
+  border-radius: 1rem;
+  padding: 1rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.single-item-card:hover {
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.item-stepper-btn {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(71, 85, 105, 0.8);
+  color: #f8fafc;
+  font-weight: 800;
+  font-size: 1.25rem;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.item-stepper-btn:hover:not(:disabled) {
+  background: rgba(51, 65, 85, 0.95);
+  border-color: #10b981;
+  color: #34d399;
+  transform: scale(1.04);
+}
+.item-stepper-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+.item-stepper-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.item-log-btn {
+  min-height: 44px;
+  min-width: 80px;
+  font-weight: 800;
+  border-radius: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+/* Light Theme overrides for single-item stepper cards */
+[data-theme="light"] .single-item-card {
+  background: #ffffff !important;
+  border-color: rgba(203, 213, 225, 0.8) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+[data-theme="light"] .item-stepper-btn {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+[data-theme="light"] .item-stepper-btn:hover:not(:disabled) {
+  background: #e2e8f0 !important;
+  border-color: #059669 !important;
+  color: #047857 !important;
+}
+[data-theme="emerald"] .single-item-card {
+  background: #ffffff !important;
+  border-color: rgba(167, 243, 208, 0.8) !important;
+}
+[data-theme="emerald"] .item-stepper-btn {
+  background: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #064e3b !important;
+}
+[data-theme="midnight"] .single-item-card {
+  background: #ffffff !important;
+  border-color: rgba(186, 230, 253, 0.8) !important;
+}
+[data-theme="midnight"] .item-stepper-btn {
+  background: #f0f9ff !important;
+  border-color: #bae6fd !important;
+  color: #0c4a6e !important;
+}
+[data-theme="cream"] .single-item-card {
+  background: #ffffff !important;
+  border-color: rgba(231, 222, 209, 0.9) !important;
+}
+[data-theme="cream"] .item-stepper-btn {
+  background: #faf7f2 !important;
+  border-color: #e7ded1 !important;
+  color: #78350f !important;
+}
+
+/* Shake Builder Stepper */
+.scoop-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 0.625rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(71, 85, 105, 0.8);
+  color: #f8fafc;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+.scoop-btn:hover:not(:disabled) {
+  background: rgba(51, 65, 85, 0.9);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  transform: scale(1.05);
+}
+.scoop-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Herbalife Shake Preset Card */
+.shake-preset-card {
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.shake-preset-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.shake-preset-card:active {
+  transform: translateY(0);
+}
+
+/* Modal styling with backdrop blur and smooth entrance animation */
+.modal-backdrop {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-content {
+  animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Button Press / Tap Scale Animation */
+button:active,
+.btn-primary:active,
+.btn-secondary:active,
+.quick-preset-btn:active,
+.shake-preset-card button:active,
+.nav-tab:active,
+.cal-day-btn:active {
+  transform: scale(0.95) !important;
+  transition: transform 0.08s ease;
+}
+
+/* Interactive Calendar Styles */
+.cal-day-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.625rem;
+  transition: all 0.15s ease;
+  position: relative;
+  cursor: pointer;
+}
+.cal-day-cell:hover:not(.cal-day-disabled) {
+  background: rgba(51, 65, 85, 0.5);
+}
+.cal-day-selected {
+  background: #10b981 !important;
+  color: #022c22 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+.cal-day-today {
+  border: 1.5px solid #06b6d4;
+}
+.cal-day-other-month {
+  opacity: 0.3;
+}
+.cal-day-dots {
+  display: flex;
+  gap: 2px;
+  margin-top: 2px;
+  height: 4px;
+}
+.cal-dot-meal {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #10b981;
+}
+.cal-dot-tanita {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #06b6d4;
+}
+.cal-dot-workout {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #f59e0b;
+}
+
+/* Symmetric Weekly Date Strip (Sun-Sat) */
+.weekly-date-strip-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  align-items: stretch;
+  width: 100%;
+}
+
+.weekly-day-card {
+  height: 88px;
+  min-height: 84px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.25rem;
+  transition: all 0.15s ease;
+  position: relative;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.weekly-day-card:active {
+  transform: scale(0.95) !important;
+  transition: transform 0.08s ease;
+}
+
+/* 3 Fixed Internal Slots */
+.weekly-day-slot-top {
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.weekly-day-slot-middle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  line-height: 1;
+  font-weight: 700;
+  width: 100%;
+}
+
+.weekly-day-slot-bottom {
+  height: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* Visual States */
+.weekly-day-inactive {
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  color: #cbd5e1;
+}
+
+.weekly-day-inactive:hover {
+  background: rgba(51, 65, 85, 0.6);
+  border-color: rgba(71, 85, 105, 0.8);
+  color: #f8fafc;
+}
+
+.weekly-day-today {
+  border: 1px solid #10b981 !important;
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9), 0 0 0 4px #10b981 !important;
+  font-weight: 700;
+}
+
+.weekly-day-selected {
+  background: #10b981 !important;
+  border-color: #34d399 !important;
+  color: #022c22 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;
+}
+
+.weekly-day-selected.weekly-day-today {
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9), 0 0 0 4px #10b981, 0 4px 14px rgba(16, 185, 129, 0.35) !important;
+}
+
+[data-theme-mode="light"] .weekly-day-inactive,
+[data-theme="light"] .weekly-day-inactive {
+  background: rgba(241, 245, 249, 0.85);
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  color: #334155;
+}
+
+[data-theme-mode="light"] .weekly-day-inactive:hover,
+[data-theme="light"] .weekly-day-inactive:hover {
+  background: rgba(226, 232, 240, 0.95);
+  color: #0f172a;
+}
+
+[data-theme-mode="light"] .weekly-day-today,
+[data-theme="light"] .weekly-day-today {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0 4px #059669 !important;
+}
+
+/* Macro Visual Budget & Remaining Progress Bars */
+.macro-budget-card {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  border-radius: 1.25rem;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4);
+}
+
+.macro-bar-track {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.9);
+  height: 0.875rem;
+  border-radius: 9999px;
+  overflow: hidden;
+  padding: 2px;
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  position: relative;
+}
+
+.macro-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
+}
+
+.macro-bar-exceeded {
+  background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%) !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+}
+
+/* Workout & Activity Module */
+.workout-card {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  transition: all 0.2s ease;
+}
+
+.workout-toggle-option {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 0.875rem;
+  font-weight: 800;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-height: 48px;
+}
+
+.muscle-chip {
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid rgba(71, 85, 105, 0.7);
+  background: rgba(15, 23, 42, 0.7);
+  color: #cbd5e1;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  user-select: none;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+}
+.muscle-chip:hover {
+  border-color: #f59e0b;
+  color: #f8fafc;
+}
+.muscle-chip.selected {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: #f59e0b;
+  color: #fef3c7;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+}
+
+/* 11-Metric Card Styles */
+.metric-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+@media (min-width: 640px) {
+  .metric-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .metric-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.tanita-metric-tile {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  border-radius: 0.875rem;
+  padding: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+.tanita-metric-tile:hover {
+  border-color: rgba(56, 189, 248, 0.5);
+  transform: translateY(-1px);
+}
+.tanita-metric-highlight,
+.visceral-tile-highlight {
+  border: 1.5px solid #f59e0b !important;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.2) !important;
+}
+
+/* Chart Canvas container */
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 260px;
+}
+
+/* Bottom Navigation Bar - Strict Single Row */
+.bottom-nav-single-row {
+  height: 60px;
+  padding-top: 6px;
+  padding-bottom: max(6px, env(safe-area-inset-bottom, 6px));
+}
+
+/* Page scroll container - ensures full visibility of tables and cards above the bottom bar */
+.view-scroll-buffer {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 20px)) !important;
+}
+
+.main-content-scroll {
+  min-height: calc(100vh - 4.5rem);
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 20px)) !important;
+}
+
+/* Tanita Table Sticky First Column & Highlighting */
+.tanita-table-sticky-col {
+  position: sticky;
+  right: 0;
+  background-color: var(--bg-card-sticky, #0b1329);
+  z-index: 10;
+  box-shadow: -4px 0 8px -2px rgba(0, 0, 0, 0.5);
+}
+
+th.tanita-table-sticky-col {
+  background-color: var(--bg-card-sticky, #090e1a) !important;
+  z-index: 20;
+}
+
+[data-theme="slate"] tr:hover .tanita-table-sticky-col,
+[data-theme="oled"] tr:hover .tanita-table-sticky-col,
+[data-theme="midnight"] tr:hover .tanita-table-sticky-col,
+[data-theme="emerald"] tr:hover .tanita-table-sticky-col {
+  background-color: #1e293b !important;
+}
+
+.tanita-visceral-col {
+  background-color: rgba(245, 158, 11, 0.12) !important;
+  color: #fbbf24 !important;
+  font-weight: 800;
+  border-left: 1px solid rgba(245, 158, 11, 0.2);
+  border-right: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Sticky Macro Card in Nutrition Tab */
+.sticky-macro-card {
+  position: sticky;
+  top: calc(var(--header-height, 69px) + 8px);
+  z-index: 25;
+  background: var(--bg-card-sticky, rgba(15, 23, 42, 0.96));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
+  border-radius: 0.875rem;
+}
+
+/* Collapsible Accordion Polish */
+details.accordion-card > summary::-webkit-details-marker {
+  display: none;
+}
+details.accordion-card > summary {
+  list-style: none;
+}
+details.accordion-card[open] .accordion-chevron {
+  transform: rotate(180deg);
+}
+
+/* ==========================================================================
+   MULTI-THEME ENGINE (Dark Slate, OLED Black, Midnight Navy, Emerald Forest, Clean Light)
+   ========================================================================== */
+:root,
+[data-theme="slate"] {
+  --bg-main: #020617;
+  --bg-header: rgba(15, 23, 42, 0.92);
+  --bg-card: rgba(30, 41, 59, 0.7);
+  --bg-card-inner: rgba(2, 6, 23, 0.6);
+  --border-card: rgba(51, 65, 85, 0.6);
+  --bg-card-sticky: rgba(15, 23, 42, 0.96);
+  --bg-nav: rgba(15, 23, 42, 0.95);
+  --border-nav: rgba(30, 41, 59, 0.8);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-color: #10b981;
+}
+
+/* OLED Pure Black (True #000000 Pitch Black for battery saving) */
+[data-theme="oled"] {
+  --bg-main: #000000;
+  --bg-header: rgba(10, 10, 10, 0.96);
+  --bg-card: rgba(18, 18, 18, 0.95);
+  --bg-card-inner: rgba(5, 5, 5, 0.9);
+  --border-card: rgba(45, 45, 45, 0.85);
+  --bg-card-sticky: rgba(12, 12, 12, 0.97);
+  --bg-nav: rgba(8, 8, 8, 0.98);
+  --border-nav: rgba(30, 30, 30, 0.9);
+  --text-main: #ffffff;
+  --text-muted: #a3a3a3;
+  --accent-color: #10b981;
+}
+[data-theme="oled"] body {
+  background-color: #000000 !important;
+}
+[data-theme="oled"] header {
+  background-color: rgba(10, 10, 10, 0.96) !important;
+  border-color: rgba(40, 40, 40, 0.9) !important;
+}
+[data-theme="oled"] .dashboard-card {
+  background-color: rgba(18, 18, 18, 0.95) !important;
+  border-color: rgba(45, 45, 45, 0.85) !important;
+}
+[data-theme="oled"] nav.bottom-nav-single-row {
+  background-color: rgba(8, 8, 8, 0.98) !important;
+  border-color: rgba(30, 30, 30, 0.9) !important;
+}
+[data-theme="oled"] .modal-content {
+  background-color: #0d0d0d !important;
+  border-color: #262626 !important;
+}
+
+/* ==========================================================================
+   THEME DEFINITIONS & COLOR PALETTES
+   ========================================================================== */
+
+/* Emerald White (Pure White Background + All Green Text & Accents) */
+[data-theme="emerald"] {
+  --bg-main: #ffffff;
+  --bg-header: rgba(255, 255, 255, 0.97);
+  --bg-card: #ffffff;
+  --bg-card-inner: #f0fdf4;
+  --bg-card-hover: #ecfdf5;
+  --border-card: #bbf7d0;
+  --border-inner: #dcfce7;
+  --bg-card-sticky: rgba(255, 255, 255, 0.98);
+  --bg-nav: rgba(255, 255, 255, 0.98);
+  --border-nav: #bbf7d0;
+  --text-main: #064e3b;
+  --text-muted: #047857;
+  --accent-color: #059669;
+}
+[data-theme="emerald"] body {
+  background-color: #ffffff !important;
+  color: #064e3b !important;
+}
+
+/* Ocean Blue on White (Midnight / Sapphire Light Theme) */
+[data-theme="midnight"] {
+  --bg-main: #ffffff;
+  --bg-header: rgba(255, 255, 255, 0.97);
+  --bg-card: #ffffff;
+  --bg-card-inner: #f0f9ff;
+  --bg-card-hover: #e0f2fe;
+  --border-card: #bae6fd;
+  --border-inner: #e0f2fe;
+  --bg-card-sticky: rgba(255, 255, 255, 0.98);
+  --bg-nav: rgba(255, 255, 255, 0.98);
+  --border-nav: #bae6fd;
+  --text-main: #0c4a6e;
+  --text-muted: #0369a1;
+  --accent-color: #0284c7;
+}
+[data-theme="midnight"] body {
+  background-color: #ffffff !important;
+  color: #0c4a6e !important;
+}
+
+/* Clean Light (Crisp Daytime Slate on White) */
+[data-theme="light"] {
+  --bg-main: #f8fafc;
+  --bg-header: rgba(255, 255, 255, 0.97);
+  --bg-card: #ffffff;
+  --bg-card-inner: #f1f5f9;
+  --bg-card-hover: #e2e8f0;
+  --border-card: #cbd5e1;
+  --border-inner: #e2e8f0;
+  --bg-card-sticky: rgba(255, 255, 255, 0.98);
+  --bg-nav: rgba(255, 255, 255, 0.98);
+  --border-nav: #cbd5e1;
+  --text-main: #0f172a;
+  --text-muted: #334155;
+  --accent-color: #059669;
+}
+[data-theme="light"] body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Warm Daylight / Ivory Sand Light Theme */
+[data-theme="cream"] {
+  --bg-main: #faf7f2;
+  --bg-header: rgba(255, 255, 255, 0.97);
+  --bg-card: #ffffff;
+  --bg-card-inner: #faf7f2;
+  --bg-card-hover: #f5f0e8;
+  --border-card: #e7ded1;
+  --border-inner: #ede5da;
+  --bg-card-sticky: rgba(255, 255, 255, 0.98);
+  --bg-nav: rgba(255, 255, 255, 0.98);
+  --border-nav: #e7ded1;
+  --text-main: #78350f;
+  --text-muted: #92400e;
+  --accent-color: #d97706;
+}
+[data-theme="cream"] body {
+  background-color: #faf7f2 !important;
+  color: #78350f !important;
+}
+
+/* ==========================================================================
+   UNIVERSAL LIGHT THEME ENFORCEMENT (Zero Dark Backgrounds Anywhere)
+   Applied when data-theme-mode="light" or theme is emerald / midnight / light / cream
+   ========================================================================== */
+[data-theme-mode="light"],
+[data-theme="light"],
+[data-theme="emerald"],
+[data-theme="midnight"],
+[data-theme="cream"] {
+  color-scheme: light;
+}
+
+/* Header & Navigation in Light Themes */
+[data-theme-mode="light"] header,
+[data-theme="light"] header,
+[data-theme="emerald"] header,
+[data-theme="midnight"] header,
+[data-theme="cream"] header {
+  background-color: rgba(255, 255, 255, 0.97) !important;
+  border-color: var(--border-card, #cbd5e1) !important;
+}
+
+[data-theme-mode="light"] nav.bottom-nav-single-row,
+[data-theme="light"] nav.bottom-nav-single-row,
+[data-theme="emerald"] nav.bottom-nav-single-row,
+[data-theme="midnight"] nav.bottom-nav-single-row,
+[data-theme="cream"] nav.bottom-nav-single-row {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  border-color: var(--border-card, #cbd5e1) !important;
+  box-shadow: 0 -4px 16px -2px rgba(15, 23, 42, 0.07) !important;
+}
+
+/* All Cards, Modals, Accordions, Workouts, Macro Budgets */
+[data-theme-mode="light"] .dashboard-card,
+[data-theme-mode="light"] .workout-card,
+[data-theme-mode="light"] .macro-budget-card,
+[data-theme-mode="light"] .visceral-highlight-card,
+[data-theme-mode="light"] .accordion-card,
+[data-theme-mode="light"] details.accordion-card,
+[data-theme-mode="light"] .shake-preset-card,
+[data-theme-mode="light"] .modal-content,
+[data-theme="light"] .dashboard-card,
+[data-theme="light"] .workout-card,
+[data-theme="light"] .macro-budget-card,
+[data-theme="emerald"] .dashboard-card,
+[data-theme="emerald"] .workout-card,
+[data-theme="emerald"] .macro-budget-card,
+[data-theme="midnight"] .dashboard-card,
+[data-theme="midnight"] .workout-card,
+[data-theme="midnight"] .macro-budget-card,
+[data-theme="cream"] .dashboard-card,
+[data-theme="cream"] .workout-card,
+[data-theme="cream"] .macro-budget-card {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: var(--border-card, #cbd5e1) !important;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06) !important;
+  color: var(--text-main, #0f172a) !important;
+}
+
+/* Sticky Macro Card */
+[data-theme-mode="light"] .sticky-macro-card,
+[data-theme="light"] .sticky-macro-card,
+[data-theme="emerald"] .sticky-macro-card,
+[data-theme="midnight"] .sticky-macro-card,
+[data-theme="cream"] .sticky-macro-card {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: var(--border-card, #cbd5e1) !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.09) !important;
+}
+
+/* Modal Backdrops & Contents */
+[data-theme-mode="light"] .modal-backdrop,
+[data-theme="light"] .modal-backdrop,
+[data-theme="emerald"] .modal-backdrop,
+[data-theme="midnight"] .modal-backdrop,
+[data-theme="cream"] .modal-backdrop {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+[data-theme-mode="light"] .modal-content,
+[data-theme="light"] .modal-content,
+[data-theme="emerald"] .modal-content,
+[data-theme="midnight"] .modal-content,
+[data-theme="cream"] .modal-content {
+  background-color: #ffffff !important;
+  border-color: var(--border-card, #cbd5e1) !important;
+  color: var(--text-main, #0f172a) !important;
+}
+
+/* Form Controls, Inputs & Smart Paste in Light Themes */
+[data-theme-mode="light"] .input-field,
+[data-theme-mode="light"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme-mode="light"] select,
+[data-theme-mode="light"] textarea,
+[data-theme-mode="light"] .smart-paste-area,
+[data-theme="light"] .input-field,
+[data-theme="emerald"] .input-field,
+[data-theme="midnight"] .input-field,
+[data-theme="cream"] .input-field,
+[data-theme="light"] .smart-paste-area,
+[data-theme="emerald"] .smart-paste-area,
+[data-theme="midnight"] .smart-paste-area,
+[data-theme="cream"] .smart-paste-area {
+  background-color: #ffffff !important;
+  border-color: var(--border-card, #cbd5e1) !important;
+  color: var(--text-main, #0f172a) !important;
+}
+
+/* Secondary Buttons & Toolbars */
+[data-theme-mode="light"] .btn-secondary,
+[data-theme-mode="light"] .scoop-btn,
+[data-theme="light"] .btn-secondary,
+[data-theme="emerald"] .btn-secondary,
+[data-theme="midnight"] .btn-secondary,
+[data-theme="cream"] .btn-secondary {
+  background-color: var(--bg-card-inner, #f1f5f9) !important;
+  color: var(--text-main, #0f172a) !important;
+  border-color: var(--border-card, #cbd5e1) !important;
+}
+
+/* Muscle Chips in Workout Module */
+[data-theme-mode="light"] .muscle-chip,
+[data-theme="light"] .muscle-chip,
+[data-theme="emerald"] .muscle-chip,
+[data-theme="midnight"] .muscle-chip,
+[data-theme="cream"] .muscle-chip {
+  background-color: var(--bg-card-inner, #f8fafc) !important;
+  color: var(--text-muted, #334155) !important;
+  border-color: var(--border-card, #cbd5e1) !important;
+}
+
+[data-theme-mode="light"] .muscle-chip:hover,
+[data-theme="emerald"] .muscle-chip:hover,
+[data-theme="midnight"] .muscle-chip:hover,
+[data-theme="cream"] .muscle-chip:hover {
+  border-color: var(--accent-color, #059669) !important;
+  color: var(--text-main, #064e3b) !important;
+}
+
+[data-theme-mode="light"] .muscle-chip.selected,
+[data-theme="emerald"] .muscle-chip.selected {
+  background-color: #d1fae5 !important;
+  border-color: #059669 !important;
+  color: #064e3b !important;
+  box-shadow: 0 0 8px rgba(5, 150, 105, 0.25) !important;
+}
+
+[data-theme="midnight"] .muscle-chip.selected {
+  background-color: #e0f2fe !important;
+  border-color: #0284c7 !important;
+  color: #0c4a6e !important;
+}
+
+[data-theme="cream"] .muscle-chip.selected {
+  background-color: #fef3c7 !important;
+  border-color: #d97706 !important;
+  color: #78350f !important;
+}
+
+/* Workout Toggle Options */
+[data-theme-mode="light"] .workout-toggle-option,
+[data-theme="light"] .workout-toggle-option,
+[data-theme="emerald"] .workout-toggle-option,
+[data-theme="midnight"] .workout-toggle-option,
+[data-theme="cream"] .workout-toggle-option {
+  background-color: var(--bg-card-inner, #f1f5f9);
+  color: var(--text-muted, #475569);
+  border: 1px solid var(--border-inner, #e2e8f0);
+}
+
+/* Eliminate All Dark Gradients on Containers in Light Themes */
+[data-theme-mode="light"] div[class*="from-slate-"],
+[data-theme-mode="light"] div[class*="from-black"],
+[data-theme-mode="light"] details[class*="from-slate-"],
+[data-theme="light"] div[class*="from-slate-"],
+[data-theme="emerald"] div[class*="from-slate-"],
+[data-theme="midnight"] div[class*="from-slate-"],
+[data-theme="cream"] div[class*="from-slate-"] {
+  background-image: none !important;
+  background-color: var(--bg-card-inner, #f8fafc) !important;
+}
+
+/* Convert ALL Tailwind Dark Background Classes to Clean Light Backgrounds */
+[data-theme-mode="light"] [class*="bg-slate-950"],
+[data-theme-mode="light"] [class*="bg-slate-900"],
+[data-theme-mode="light"] [class*="bg-slate-800"],
+[data-theme-mode="light"] [class*="bg-black"],
+[data-theme="light"] [class*="bg-slate-950"],
+[data-theme="light"] [class*="bg-slate-900"],
+[data-theme="light"] [class*="bg-slate-800"],
+[data-theme="emerald"] [class*="bg-slate-950"],
+[data-theme="emerald"] [class*="bg-slate-900"],
+[data-theme="emerald"] [class*="bg-slate-800"],
+[data-theme="midnight"] [class*="bg-slate-950"],
+[data-theme="midnight"] [class*="bg-slate-900"],
+[data-theme="midnight"] [class*="bg-slate-800"],
+[data-theme="cream"] [class*="bg-slate-950"],
+[data-theme="cream"] [class*="bg-slate-900"],
+[data-theme="cream"] [class*="bg-slate-800"] {
+  background-color: var(--bg-card-inner, #f8fafc) !important;
+  border-color: var(--border-inner, #e2e8f0) !important;
+}
+
+/* Light Theme Borders */
+[data-theme-mode="light"] [class*="border-slate-800"],
+[data-theme-mode="light"] [class*="border-slate-700"],
+[data-theme-mode="light"] [class*="divide-slate-800"],
+[data-theme="light"] [class*="border-slate-800"],
+[data-theme="light"] [class*="border-slate-700"],
+[data-theme="emerald"] [class*="border-slate-800"],
+[data-theme="emerald"] [class*="border-slate-700"],
+[data-theme="midnight"] [class*="border-slate-800"],
+[data-theme="midnight"] [class*="border-slate-700"],
+[data-theme="cream"] [class*="border-slate-800"],
+[data-theme="cream"] [class*="border-slate-700"] {
+  border-color: var(--border-inner, #e2e8f0) !important;
+}
+
+/* Tanita Metric Tiles */
+[data-theme-mode="light"] .tanita-metric-tile,
+[data-theme="light"] .tanita-metric-tile,
+[data-theme="emerald"] .tanita-metric-tile,
+[data-theme="midnight"] .tanita-metric-tile,
+[data-theme="cream"] .tanita-metric-tile {
+  background: var(--bg-card-inner, #f8fafc) !important;
+  border-color: var(--border-card, #cbd5e1) !important;
+  color: var(--text-main, #0f172a) !important;
+}
+
+/* ALL TABLES IN LIGHT THEMES: 100% Light, Crisp, Zero Dark Remnants */
+[data-theme-mode="light"] table,
+[data-theme="light"] table,
+[data-theme="emerald"] table,
+[data-theme="midnight"] table,
+[data-theme="cream"] table {
+  background-color: #ffffff !important;
+  color: var(--text-main, #0f172a) !important;
+}
+
+[data-theme-mode="light"] table thead,
+[data-theme-mode="light"] table thead tr,
+[data-theme-mode="light"] thead tr,
+[data-theme="light"] table thead,
+[data-theme="emerald"] table thead,
+[data-theme="midnight"] table thead,
+[data-theme="cream"] table thead {
+  background-color: var(--bg-card-inner, #f1f5f9) !important;
+  border-color: var(--border-card, #cbd5e1) !important;
+  color: var(--text-main, #0f172a) !important;
+}
+
+[data-theme-mode="light"] table th,
+[data-theme-mode="light"] thead th,
+[data-theme="light"] table th,
+[data-theme="emerald"] table th,
+[data-theme="midnight"] table th,
+[data-theme="cream"] table th {
+  background-color: var(--bg-card-inner, #f1f5f9) !important;
+  color: var(--text-main, #0f172a) !important;
+  border-color: var(--border-card, #cbd5e1) !important;
+}
+
+[data-theme-mode="light"] table tbody tr,
+[data-theme-mode="light"] tbody tr,
+[data-theme="light"] table tbody tr,
+[data-theme="emerald"] table tbody tr,
+[data-theme="midnight"] table tbody tr,
+[data-theme="cream"] table tbody tr {
+  background-color: #ffffff !important;
+  border-color: var(--border-inner, #e2e8f0) !important;
+  color: var(--text-main, #0f172a) !important;
+}
+
+[data-theme-mode="light"] table tbody tr:nth-child(even),
+[data-theme="light"] table tbody tr:nth-child(even),
+[data-theme="emerald"] table tbody tr:nth-child(even),
+[data-theme="midnight"] table tbody tr:nth-child(even),
+[data-theme="cream"] table tbody tr:nth-child(even) {
+  background-color: var(--bg-card-inner, #f8fafc) !important;
+}
+
+[data-theme-mode="light"] table tbody tr:hover,
+[data-theme-mode="light"] tbody tr:hover,
+[data-theme="light"] table tbody tr:hover,
+[data-theme="emerald"] table tbody tr:hover,
+[data-theme="midnight"] table tbody tr:hover,
+[data-theme="cream"] table tbody tr:hover {
+  background-color: var(--bg-card-hover, #f1f5f9) !important;
+}
+
+[data-theme-mode="light"] table td,
+[data-theme-mode="light"] tbody td,
+[data-theme="light"] table td,
+[data-theme="emerald"] table td,
+[data-theme="midnight"] table td,
+[data-theme="cream"] table td {
+  border-color: var(--border-inner, #e2e8f0) !important;
+  color: var(--text-main, #0f172a) !important;
+}
+
+[data-theme-mode="light"] .tanita-table-sticky-col,
+[data-theme="light"] .tanita-table-sticky-col,
+[data-theme="emerald"] .tanita-table-sticky-col,
+[data-theme="midnight"] .tanita-table-sticky-col,
+[data-theme="cream"] .tanita-table-sticky-col {
+  background-color: #ffffff !important;
+  color: var(--text-main, #0f172a) !important;
+  box-shadow: -3px 0 6px -1px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme-mode="light"] th.tanita-table-sticky-col,
+[data-theme="light"] th.tanita-table-sticky-col,
+[data-theme="emerald"] th.tanita-table-sticky-col,
+[data-theme="midnight"] th.tanita-table-sticky-col,
+[data-theme="cream"] th.tanita-table-sticky-col {
+  background-color: var(--bg-card-inner, #f1f5f9) !important;
+  color: var(--text-main, #0f172a) !important;
+}
+
+[data-theme-mode="light"] tr:nth-child(even) .tanita-table-sticky-col,
+[data-theme="light"] tr:nth-child(even) .tanita-table-sticky-col,
+[data-theme="emerald"] tr:nth-child(even) .tanita-table-sticky-col,
+[data-theme="midnight"] tr:nth-child(even) .tanita-table-sticky-col,
+[data-theme="cream"] tr:nth-child(even) .tanita-table-sticky-col {
+  background-color: var(--bg-card-inner, #f8fafc) !important;
+}
+
+[data-theme-mode="light"] tr:hover .tanita-table-sticky-col,
+[data-theme="light"] tr:hover .tanita-table-sticky-col,
+[data-theme="emerald"] tr:hover .tanita-table-sticky-col,
+[data-theme="midnight"] tr:hover .tanita-table-sticky-col,
+[data-theme="cream"] tr:hover .tanita-table-sticky-col {
+  background-color: var(--bg-card-hover, #e2e8f0) !important;
+}
+
+/* Visceral Col in Light */
+[data-theme-mode="light"] .tanita-visceral-col,
+[data-theme="light"] .tanita-visceral-col,
+[data-theme="emerald"] .tanita-visceral-col,
+[data-theme="midnight"] .tanita-visceral-col,
+[data-theme="cream"] .tanita-visceral-col {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  border-color: #fde68a !important;
+  font-weight: 800 !important;
+}
+
+/* ==========================================================================
+   SPECIFIC THEME TYPOGRAPHY RULES (Per User Directive)
+   "הצבע הנבחר היא יהיה הכתב. נניח ירוק הכל יהיה כיתוב ירוק. ירוק בהיר ירוק כהה וכו. אבל רקע לבן"
+   ========================================================================== */
+
+/* 1. EMERALD THEME: ALL GREEN TYPOGRAPHY ON PURE WHITE BACKGROUND */
+[data-theme="emerald"] header h1,
+[data-theme="emerald"] h1,
+[data-theme="emerald"] h2,
+[data-theme="emerald"] h3,
+[data-theme="emerald"] h4,
+[data-theme="emerald"] h5,
+[data-theme="emerald"] .card-title,
+[data-theme="emerald"] .text-slate-100,
+[data-theme="emerald"] .text-slate-200 {
+  color: #064e3b !important; /* Deep forest green */
+}
+
+[data-theme="emerald"] p,
+[data-theme="emerald"] label,
+[data-theme="emerald"] .text-slate-300,
+[data-theme="emerald"] .text-slate-400 {
+  color: #047857 !important; /* Rich emerald green */
+}
+
+[data-theme="emerald"] .text-slate-500,
+[data-theme="emerald"] small,
+[data-theme="emerald"] .text-muted {
+  color: #059669 !important; /* Medium emerald */
+}
+
+[data-theme="emerald"] strong,
+[data-theme="emerald"] b,
+[data-theme="emerald"] .font-bold,
+[data-theme="emerald"] .font-black {
+  color: #064e3b !important;
+}
+
+[data-theme="emerald"] .text-emerald-400,
+[data-theme="emerald"] .text-emerald-300 {
+  color: #047857 !important; /* High contrast green readable on white */
+}
+
+[data-theme="emerald"] table th {
+  color: #064e3b !important;
+}
+
+[data-theme="emerald"] table td {
+  color: #047857 !important;
+}
+
+[data-theme="emerald"] .card-badge,
+[data-theme="emerald"] span[class*="bg-slate-950"] {
+  background-color: #f0fdf4 !important;
+  color: #064e3b !important;
+  border-color: #bbf7d0 !important;
+}
+
+/* 2. MIDNIGHT THEME: ALL BLUE TYPOGRAPHY ON PURE WHITE BACKGROUND */
+[data-theme="midnight"] header h1,
+[data-theme="midnight"] h1,
+[data-theme="midnight"] h2,
+[data-theme="midnight"] h3,
+[data-theme="midnight"] h4,
+[data-theme="midnight"] .card-title,
+[data-theme="midnight"] .text-slate-100,
+[data-theme="midnight"] .text-slate-200 {
+  color: #0c4a6e !important; /* Deep navy blue */
+}
+
+[data-theme="midnight"] p,
+[data-theme="midnight"] label,
+[data-theme="midnight"] .text-slate-300,
+[data-theme="midnight"] .text-slate-400 {
+  color: #0369a1 !important; /* Rich sapphire blue */
+}
+
+[data-theme="midnight"] .text-slate-500,
+[data-theme="midnight"] small {
+  color: #0284c7 !important;
+}
+
+[data-theme="midnight"] strong,
+[data-theme="midnight"] b,
+[data-theme="midnight"] .font-bold,
+[data-theme="midnight"] .font-black {
+  color: #0c4a6e !important;
+}
+
+[data-theme="midnight"] table th {
+  color: #0c4a6e !important;
+}
+
+[data-theme="midnight"] table td {
+  color: #0369a1 !important;
+}
+
+[data-theme="midnight"] .card-badge,
+[data-theme="midnight"] span[class*="bg-slate-950"] {
+  background-color: #f0f9ff !important;
+  color: #0c4a6e !important;
+  border-color: #bae6fd !important;
+}
+
+/* 3. WARM CREAM THEME: AMBER & BROWN TYPOGRAPHY ON WARM IVORY/WHITE BACKGROUND */
+[data-theme="cream"] header h1,
+[data-theme="cream"] h1,
+[data-theme="cream"] h2,
+[data-theme="cream"] h3,
+[data-theme="cream"] h4,
+[data-theme="cream"] .card-title,
+[data-theme="cream"] .text-slate-100,
+[data-theme="cream"] .text-slate-200 {
+  color: #78350f !important; /* Deep warm bronze */
+}
+
+[data-theme="cream"] p,
+[data-theme="cream"] label,
+[data-theme="cream"] .text-slate-300,
+[data-theme="cream"] .text-slate-400 {
+  color: #92400e !important; /* Warm terracotta */
+}
+
+[data-theme="cream"] .text-slate-500,
+[data-theme="cream"] small {
+  color: #b45309 !important;
+}
+
+[data-theme="cream"] strong,
+[data-theme="cream"] b {
+  color: #78350f !important;
+}
+
+[data-theme="cream"] table th {
+  color: #78350f !important;
+}
+
+[data-theme="cream"] table td {
+  color: #92400e !important;
+}
+
+[data-theme="cream"] .card-badge,
+[data-theme="cream"] span[class*="bg-slate-950"] {
+  background-color: #faf7f2 !important;
+  color: #78350f !important;
+  border-color: #e7ded1 !important;
+}
+
+/* 4. CLEAN LIGHT THEME: CRISP SLATE & CHARCOAL TYPOGRAPHY */
+[data-theme="light"] header h1,
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] .card-title,
+[data-theme="light"] .text-slate-100,
+[data-theme="light"] .text-slate-200 {
+  color: #0f172a !important; /* Crisp charcoal */
+}
+
+[data-theme="light"] p,
+[data-theme="light"] label,
+[data-theme="light"] .text-slate-300,
+[data-theme="light"] .text-slate-400 {
+  color: #334155 !important;
+}
+
+[data-theme="light"] strong,
+[data-theme="light"] b {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] table th {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] table td {
+  color: #334155 !important;
+}
+
+/* ==========================================================================
+   HIGH CONTRAST BRIGHT TEXT ENFORCEMENT ON DARK THEMES (SLATE & OLED ONLY)
+   ========================================================================== */
+[data-theme="slate"] .text-slate-400,
+[data-theme="oled"] .text-slate-400,
+[data-theme="slate"] .text-slate-500,
+[data-theme="oled"] .text-slate-500 {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="slate"] .text-slate-300,
+[data-theme="oled"] .text-slate-300 {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="slate"] .text-slate-200,
+[data-theme="oled"] .text-slate-200,
+[data-theme="slate"] .text-slate-100,
+[data-theme="oled"] .text-slate-100 {
+  color: #ffffff !important;
+}
+
+[data-theme="slate"] table th,
+[data-theme="oled"] table th {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="slate"] table td,
+[data-theme="oled"] table td {
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   CONTRAST & READABILITY ENFORCEMENT FOR BADGES ACROSS ALL THEMES
+   Mandatory: If background is light emerald/cyan/neutral in light themes,
+   text MUST be dark slate/navy (#0f172a / #064e3b; font-weight: 700+).
+   Never allow washed out or low-contrast text on badges or live previews.
+   ========================================================================== */
+
+/* Universal badge contrast in Light Modes */
+[data-theme-mode="light"] span[class*="bg-emerald-500"],
+[data-theme-mode="light"] span[class*="bg-emerald-400"],
+[data-theme-mode="light"] span[class*="bg-cyan-500"],
+[data-theme-mode="light"] span[class*="bg-cyan-400"],
+[data-theme-mode="light"] span[class*="bg-teal-500"],
+[data-theme="light"] span[class*="bg-emerald-500"],
+[data-theme="light"] span[class*="bg-emerald-400"],
+[data-theme="light"] span[class*="bg-cyan-500"],
+[data-theme="light"] span[class*="bg-cyan-400"],
+[data-theme="emerald"] span[class*="bg-emerald-500"],
+[data-theme="emerald"] span[class*="bg-emerald-400"],
+[data-theme="emerald"] span[class*="bg-cyan-500"],
+[data-theme="emerald"] span[class*="bg-cyan-400"],
+[data-theme="midnight"] span[class*="bg-emerald-500"],
+[data-theme="midnight"] span[class*="bg-emerald-400"],
+[data-theme="midnight"] span[class*="bg-cyan-500"],
+[data-theme="midnight"] span[class*="bg-cyan-400"],
+[data-theme="cream"] span[class*="bg-emerald-500"],
+[data-theme="cream"] span[class*="bg-emerald-400"],
+[data-theme="cream"] span[class*="bg-cyan-500"],
+[data-theme="cream"] span[class*="bg-cyan-400"] {
+  color: #064e3b !important;
+  font-weight: 800 !important;
+  background-color: #d1fae5 !important;
+  border-color: #6ee7b7 !important;
+}
+
+/* Cyan badges specifically in light modes */
+[data-theme-mode="light"] span[class*="bg-cyan-500"],
+[data-theme="light"] span[class*="bg-cyan-500"],
+[data-theme="emerald"] span[class*="bg-cyan-500"],
+[data-theme="midnight"] span[class*="bg-cyan-500"],
+[data-theme="cream"] span[class*="bg-cyan-500"] {
+  color: #0c4a6e !important;
+  font-weight: 800 !important;
+  background-color: #e0f2fe !important;
+  border-color: #7dd3fc !important;
+}
+
+/* Quick preset card titles and badges in light modes */
+[data-theme-mode="light"] .quick-preset-btn,
+[data-theme="light"] .quick-preset-btn,
+[data-theme="emerald"] .quick-preset-btn,
+[data-theme="midnight"] .quick-preset-btn,
+[data-theme="cream"] .quick-preset-btn {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme-mode="light"] .quick-preset-btn .text-emerald-400,
+[data-theme="light"] .quick-preset-btn .text-emerald-400,
+[data-theme="light"] .quick-preset-btn .text-slate-200 {
+  color: #064e3b !important;
+}
+[data-theme="emerald"] .quick-preset-btn .text-emerald-400,
+[data-theme="emerald"] .quick-preset-btn .text-slate-200 {
+  color: #064e3b !important;
+}
+[data-theme="midnight"] .quick-preset-btn .text-emerald-400,
+[data-theme="midnight"] .quick-preset-btn .text-slate-200 {
+  color: #0c4a6e !important;
+}
+[data-theme="cream"] .quick-preset-btn .text-emerald-400,
+[data-theme="cream"] .quick-preset-btn .text-slate-200 {
+  color: #78350f !important;
+}
+
+[data-theme-mode="light"] .quick-preset-btn .text-slate-400,
+[data-theme="light"] .quick-preset-btn .text-slate-400 {
+  color: #334155 !important;
+}
+[data-theme="emerald"] .quick-preset-btn .text-slate-400 {
+  color: #047857 !important;
+}
+[data-theme="midnight"] .quick-preset-btn .text-slate-400 {
+  color: #0369a1 !important;
+}
+[data-theme="cream"] .quick-preset-btn .text-slate-400 {
+  color: #92400e !important;
+}
+
+/* Single Item Preview in Light Modes */
+[data-theme-mode="light"] .single-item-preview,
+[data-theme="light"] .single-item-preview,
+[data-theme="emerald"] .single-item-preview,
+[data-theme="midnight"] .single-item-preview,
+[data-theme="cream"] .single-item-preview {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+[data-theme-mode="light"] .single-item-preview .text-emerald-400,
+[data-theme="light"] .single-item-preview .text-emerald-400,
+[data-theme="light"] .single-item-preview strong,
+[data-theme="emerald"] .single-item-preview .text-emerald-400,
+[data-theme="emerald"] .single-item-preview strong {
+  color: #064e3b !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="midnight"] .single-item-preview .text-emerald-400,
+[data-theme="midnight"] .single-item-preview strong {
+  color: #0c4a6e !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="cream"] .single-item-preview .text-emerald-400,
+[data-theme="cream"] .single-item-preview strong {
+  color: #78350f !important;
+  font-weight: 800 !important;
+}
+
+[data-theme-mode="light"] .single-item-count-display,
+[data-theme="light"] .single-item-count-display,
+[data-theme="emerald"] .single-item-count-display,
+[data-theme="midnight"] .single-item-count-display,
+[data-theme="cream"] .single-item-count-display {
+  color: #0f172a !important;
+}
+
+/* ==========================================================================
+   REORDERABLE ACCORDION CARDS & DRAG-AND-DROP MICRO-INTERACTIONS
+   ========================================================================== */
+.reorderable-card {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease,
+              opacity 0.2s ease;
+  position: relative;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+details.accordion-card {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+details.accordion-card > summary {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.reorderable-card.card-dragging {
+  opacity: 0.88;
+  transform: scale(1.015);
+  box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.75), 0 0 0 2px #10b981 !important;
+  border-color: #10b981 !important;
+  z-index: 30;
+}
+
+.reorderable-card.drop-target-active {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.45) !important;
+  transform: translateY(2px);
+}
+
+/* Card Header Vertical Reordering Cluster (Right-side: Up arrow on top, Drag in middle, Down arrow on bottom) */
+.card-reorder-vertical-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: 24px;
+  min-width: 24px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.card-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 18px;
+  min-width: 22px;
+  color: #64748b;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: color 0.15s ease, transform 0.15s ease;
+  border-radius: 3px;
+}
+
+.card-drag-handle:hover {
+  color: #10b981;
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.card-drag-handle:active {
+  cursor: grabbing;
+}
+
+.card-reorder-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 20px;
+  min-width: 22px;
+  min-height: 20px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  background: rgba(30, 41, 59, 0.75);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  color: #94a3b8;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  user-select: none;
+  padding: 0;
+}
+
+.card-reorder-btn:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+.card-reorder-btn:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+  border-color: transparent;
+  pointer-events: none;
+}
+
+.card-reorder-btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+/* High-contrast Global Toast across all themes */
+[data-theme-mode="light"] #global-toast {
+  background-color: #ffffff !important;
+  color: #064e3b !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme-mode="light"] #global-toast span {
+  color: #064e3b !important;
+  font-weight: 800 !important;
+}
+
+/* Visual Food Cards & Thumbnail Image System */
+.food-card {
+  position: relative;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(51, 65, 85, 0.7);
+  border-radius: 0.875rem;
+  padding: 0.75rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.food-card:hover {
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.food-thumbnail-container {
+  width: 3.25rem;
+  height: 3.25rem;
+  min-width: 3.25rem;
+  min-height: 3.25rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(71, 85, 105, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+
+@media (min-width: 640px) {
+  .food-thumbnail-container {
+    width: 3.5rem;
+    height: 3.5rem;
+    min-width: 3.5rem;
+    min-height: 3.5rem;
+  }
+}
+
+.food-thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.food-thumbnail-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  user-select: none;
+}
+
+.food-macro-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.food-macro-pill {
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  white-space: nowrap;
+}
+
+/* Light Theme overrides for food thumbnails & cards */
+[data-theme="light"] .food-card,
+[data-theme-mode="light"] .food-card {
+  background: #ffffff !important;
+  border-color: rgba(203, 213, 225, 0.8) !important;
+}
+
+[data-theme="light"] .food-thumbnail-container,
+[data-theme-mode="light"] .food-thumbnail-container {
+  background: #f1f5f9 !important;
+  border-color: rgba(203, 213, 225, 0.9) !important;
+}
+
+[data-theme="light"] .food-macro-pill,
+[data-theme-mode="light"] .food-macro-pill {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+
+

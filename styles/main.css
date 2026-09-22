@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+:root {
+  --bg-slate-950: #0f172a;
+  --bg-slate-900: #1e293b;
+  --emerald-accent: #10b981;
+  --cyan-accent: #06b6d4;
+}
+
+/* Ensure full viewport and smooth scrolling without content clipping */
+html, body {
+  height: 100%;
+  min-height: 100vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fix Viewport / Bottom Overflow & Cutoff (Mobile Scrolling Bug) */
+main, .main-scroll-container {
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 24px)) !important;
+}
+
+/* Extra safety buffer for views */
+#view-dashboard {
+  padding-bottom: calc(40px + env(safe-area-inset-bottom, 16px));
+}
+
+/* iOS Safe Area Padding Support */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 12px);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* Bounce scrolling and touch optimization */
+body {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+input, button, select, textarea {
+  font-family: inherit;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
